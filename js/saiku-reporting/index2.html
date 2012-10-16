@@ -1,0 +1,28 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<script src="http://ajax.cdnjs.com/ajax/libs/underscore.js/1.1.4/underscore-min.js"></script>
+        <script type="text/javascript" src="saiku-metadata-query.js"></script>
+		<style type="text/css">
+		body { white-space: pre; font-family: monospace; }​
+</style>
+
+		
+        <title>New Web Project</title>
+    </head>
+    <body>
+        <h1>New Web Project Page</h1>
+       <div id="content"></div>
+       <script type="text/javascript" charset="utf-8">
+	   
+		var query = new saiku.mql.MqlQuery();
+        var selection = new saiku.mql.MqlSelection({id: "dert", category: "test"});
+		query.addSelection(selection);
+		document.body.appendChild(document.createTextNode(query.toXml()));
+		
+       </script>
+
+    </body>
+</html>

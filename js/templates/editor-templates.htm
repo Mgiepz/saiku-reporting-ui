@@ -1,0 +1,178 @@
+<script type="text/x-jquery-tmpl" id="report-toolbar">
+<div class="report-toolbar">
+		<div id='format_toolbox'>
+		</div>
+</script>
+
+<script type="text/x-jquery-tmpl" id="format-editor">
+		    <div id="pager" class="pager">
+		<ul>
+             <li>
+            	<a href="#first_page" 
+                class="i18n first_page button page" 
+                title="First Page"></a></li>
+            <li><a href="#prev_page" 
+                class="i18n prev_page  button page" 
+                title="Previous Page"></a></li> 
+            <li id='curr_page'>1</li> 
+            <li>/</li> 
+            <li id='off_page'>1</li>     
+            <li><a href="#next_page" 
+                class="i18n next_page  button page" 
+                title="Next Page"></a></li>  
+             <li><a href="#last_page" 
+                class="i18n last_page  button page" 
+                title="Last Page"></a></li>              
+        </ul>
+	</div>
+	
+	<div id="edit-align" class="editor">
+        <ul>
+        	<li class="seperator">
+            	<a href="#select_templates" 
+                class="i18n templates button disabled_editor" 
+                title="select template"></a></li>
+          <li class="seperator"><a href="#align_left" 
+                class="i18n horz align-left button" 
+                title="align left"></a></li>
+            <li><a href="#align_center" 
+                class="i18n horz align-center button" 
+                title="align center"></a></li> 
+            <li><a href="#align_right" 
+                class="i18n horz align-right button" 
+                title="align right"></a></li>            
+            <li class="seperator">
+            	<a href="#align_top" 
+                class="i18n vert align-top button" 
+                title="align top"></a></li>
+            <li><a href="#align_middle" 
+                class="i18n vert align-center button" 
+                title="align middle"></a></li>   
+            <li><a href="#align_bottom" 
+                class="i18n vert align-bottom button" 
+                title="align bottom"></a></li>     
+                
+            <li class="seperator">
+            	<a href="#padding_inc" 
+                class="i18n padding-left button" 
+                title="increase padding"></a></li>
+            <li><a href="#padding_dec" 
+                class="i18n padding-right button" 
+                title="decrease padding"></a></li>   
+           
+            </ul>              
+	</div>            
+    <div id="fontstyle" class="editor">
+		<ul>
+             <li class="seperator">
+            	<a href="#fontstyle_bold" 
+                class="i18n fontstyle-bold button" 
+                title="bold"></a></li>
+            <li><a href="#fontstyle_italic" 
+                class="i18n fontstyle-italic  button" 
+                title="italic"></a></li> 
+            <li><a href="#fontstyle_udl" 
+                class="i18n fontstyle-udl  button" 
+                title="underlined"></a></li>              
+        </ul>
+	</div>
+		<div id="color" class="editor">
+		<ul>
+            <li class="seperator">
+            <a href="#text_color" 
+                class="i18n text-color button" 
+                title="text color"></a></li>
+            <li><a href="#background_color" 
+                class="i18n background-color button" 
+                title="background color"></a></li> 
+                <li class="seperator"></li>
+        </ul>
+	</div>
+	<div class='fontpick_container'> 	
+		<!--div id='fontpicker' class='fontPicker'></div-->
+	<div class='fontSelector'>
+<select id='fontfamily' class='fontSelector' style='font-size:12px;'>
+	<option value='' selected>- FONT -</option>
+	<option value='Arial' style='font-family:arial;'>Arial</option>
+	<option value='Courier' style='font-family:courier;'>Courier</option>
+	<option value='Cursive' style='font-family:cursive;'>Cursive</option>
+	<option value='Georgia' style='font-family:georgia;'>Georgia</option>
+	<option value='Monospace' style='font-family:monospace;'>Monospace</option>
+	<option value='Tahoma' style='font-family:tahoma;'>Tahoma</option>
+	<option value='Verdana' style='font-family:verdana;'>Verdana</option>
+</select>
+</div>	
+</div>	
+	<div id='fontsize' class='sizeSelector'></div>
+</script>
+
+        <script type="text/x-jquery-tmpl" id="template-selection">   
+        	<div class="alertbox_h1">
+			<span>Document Template </span>
+			</div>   	
+           <div id="template-carousel" style="text-align:center" class="template-carousel jcarousel-skin-ie7">
+             <ul>      
+			 </ul>
+            </div>
+            <h3 id="template_name" class="top">My Template</h3>
+            <div class="alertbox_h1">
+			<span>Page Settings </span>
+			</div>
+			<div class="page_format">
+            <ul> 
+            <li>
+            	<select id="selectedFormat" size="3">
+                </select>
+            </li>            
+            <li id='portrait'><a href="#page_portrait" 
+                class="i18n pageformat portrait button" 
+                title="portrait"></a></li>  
+
+            <li id='landscape'><a href="#page_landscape" 
+                class="i18n pageformat landscape button" 
+                title="landscape"></a></li>            
+             </ul>
+			</div>
+			<div class="alertbox_h1">
+			<span>Page Margins </span>
+			</div>
+			<div class='page_margin'>
+				<span>Top: </span><input type="text" name='margin-top' />
+				<span>Bottom: </span><input type="text" name='margin-bottom' />
+				<span>Left: </span><input type="text" name='margin-left' />
+				<span>Right: </span><input type="text" name='margin-right' />
+			</div>
+        </script>
+
+<script type="text/x-jquery-tmpl" id="template-filetree">
+	<div id="container_id"  class="folderexplorer" width="300px">
+	</div>
+	<div class="alertbox_standard">
+	<div id="export_file">
+	<span class="folderexplorerfileinput">
+	<label>File: </label><input id="fileInput" type="text">
+	</span>
+	</div>
+	</div>
+</script>
+
+<script type="text/x-jquery-tmpl" id="template-export-prpt">
+	<div id="container_id"  class="folderexplorer" width="300px">
+	</div>
+	<div class="alertbox_standard">
+	<div id="export_file">
+	<span class="folderexplorerfileinput">
+	<label>File: </label><input id="fileInput" type="text">
+	</span>
+	</div>
+	<div id="export_user">
+	<label>User: </label><input id="exportUser" type="text">
+	</input>
+	</div>
+	<div id="export_password">
+	<label>Password: </label><input id="exportPassword" type="password">
+	</input>
+	</div>
+	</div>
+</script>
+

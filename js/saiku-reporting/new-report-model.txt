@@ -1,0 +1,35 @@
+var RootBandFormat = {
+	repeat : true,
+	visible : true
+}
+
+var TableDefinitionDefaults = {
+	groups : [],
+	columns : [],
+	detailsFooterBand : _.extend({}, RootBandDefaults),
+	detailsHeaderBand : _.extend({}, RootBandDefaults),
+}
+
+var ReportSpecificationDefaults = {
+	reportName : null,
+	pageHeaders : [],
+	pageFooters : [],
+	reportFooters : [],
+	pageSetup : [],
+	tableDefinition : _.extend({}, TableDefinitionDefaults),
+	charts : [],
+	templateDefinition : null,
+	
+	// functions
+	addColumn : function(field, position) {},
+	removeColumn : function(field, position) {},
+	addGroup : function(field, position, groupType) {},
+	removeGroup : function(field, position) {
+		//console.log(this.attributes.name + " is " + action);
+	},
+	getElementFormatById: function(uid){},
+	setElementFormatById: function(uid){},
+}
+
+var saiku.report = {}
+	saiku.report["ReportSpecification"] = _.extend({}, ReportSpecificationDefaults),

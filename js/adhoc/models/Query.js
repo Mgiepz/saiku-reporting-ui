@@ -39,9 +39,10 @@ var Query = Backbone.Model.extend({
             
             
         this.reportPerspective = true;
-        
+
         this.action = new QueryAction({}, { query: this });
         this.result = new Result({}, { query: this });
+        this.selectedModel = Application.session.mdModels[this.attributes.domainId + "/" + this.attributes.modelId];
 
         this.reportresult = new ReportResult({}, { query: this });
         this.inplace = new InplaceEdit({}, { query: this });
@@ -65,63 +66,6 @@ var Query = Backbone.Model.extend({
         this.workspace.trigger('properties:loaded');
     },
 
-	buildQuery: function(columns, groups, filters){
-	
-		//merge columns and groups, they should be of the same type
-	
-		var domainId = this.attributes.domainId;
-		var modelId = this.attributes.modelId;
-
-		var mqlQuery = new saiku.mql.MqlQuery({domainId: domainId.replace("%2F","/"), modelId: modelId});
-		
-		var model = Application.session.mdModels[domainId + "/" + modelId];
-
-		//selections
-		_.each(columns, 
-			function(column){
-			if(!(column.length === 0)){
-				//better tag with real attributes
-				var href = $(column).find('a').attr("href");
-				var parts = href.split("/");
-				var metadataColumn = model.getColumnById(parts[1],parts[3]);
-				var selection = new saiku.mql.MqlSelection({
-						id: metadataColumn.id, 
-						category: metadataColumn.category
-				});
-				
-				mqlQuery.addSelection(selection);
-				
-				var sorter = $(column).find('span');
-
-				if(!($(sorter).hasClass("asc"))){
-					if($(sorter).hasClass("desc")){
-						var sort = new saiku.mql.MqlSort({
-							column: metadataColumn.id, 
-							category: metadataColumn.category,
-							orderType : SortType.DESC
-						})
-						mqlQuery.addSort(sort);
-					}
-					else{
-						var sort = new saiku.mql.MqlSort({
-							column: metadataColumn.id, 
-							category: metadataColumn.category,
-							orderType : SortType.ASC
-						})
-						mqlQuery.addSort(sort);					
-					}
-				}
-				}
-			});
-
-		//filters
-		
-		//
-		
-		return mqlQuery;
-	
-	},
-	
     run: function(force) {
     	/*
         if (! this.properties.properties['saiku.adhoc.query.automatic_execution'] &&
@@ -142,23 +86,11 @@ var Query = Backbone.Model.extend({
             return;
         }
 		
-		var groups = $(this.workspace.el).find('.groups ul li.d_dimension'); 
+		var mqlQueryString = saiku.mql.Phomp.jsToMql(this.workspace.metadataQuery);
 
-		var selections = $.merge(columns,groups);
-		
-		var mqlQuery = this.buildQuery(selections);
+		this.workspace.reportSpec.dataSource = new saiku.report.Datasource({id: "master" , properties: {queryString:mqlQueryString}});
 
-		var ds = _.extend({},saiku.report.Datasource, {id: "master" , properties: {queryString:mqlQuery.toXml()}});
-		
-		this.workspace.reportSpec.dataSource = ds;
-	
-		var myurl = "/mql";
 		var that = this;
-		
-//		this.action.post(
-//			myurl, {data: {mqlQuery: mqlQuery.toXml()},
-//			success: function(response) {
-//				console.log("mqlQuery saved succesfully");
 
 				if(!that.reportPerspective){
 					Application.ui.block("Rendering Table");
@@ -180,10 +112,6 @@ var Query = Backbone.Model.extend({
 						}
 					});		
 				}
-				
-//			}
-//		});
-
    },
     
     move_dimension: function(dimension, $target_el, indexFrom, index) {
@@ -193,30 +121,40 @@ var Query = Backbone.Model.extend({
         if ($target_el.hasClass('columns')) target = "COLUMNS";
         if ($target_el.hasClass('group')) target = "GROUP";
         if ($target_el.hasClass('filter')) target = "FILTER";
-  
-        //var url = "/" + target + "/" + dimension + "/POSITION/" + index;
-
-        //var uid = $($target_el.find('li').get(index)).attr('id');
 
 		//dirty
-		fieldId = dimension.split('/')[3];
-		
+		var fieldInfo = dimension.split('/');
+      	var domainId = this.workspace.query.attributes.domainId;
+      	var modelId = this.workspace.query.attributes.modelId;
+      	var model = Application.session.mdModels[domainId + "/" + modelId];
+      	var categoryId = fieldInfo[1];
+      	var columnId = fieldInfo[3]
+		var mc = model.getColumnById(categoryId,columnId);
+
+		var selection = new saiku.mql.Selection({table:categoryId, column:columnId});
+
+if(index===-1){
+remove the column
+}
+
 		switch(target){
 			case "COLUMNS":
-				var field = _.extend({},saiku.report.FieldDefinition,{fieldId: fieldId});	
+				var field = new saiku.report.FieldDefinition({fieldId: mc.id, fieldName: mc.name, fieldDescription: mc.description});
 				if(indexFrom)
 				{
 					field = this.workspace.reportSpec.removeColumn(indexFrom);
 				}	
 				this.workspace.reportSpec.addColumn(field, index);
+				this.workspace.metadataQuery.mql.selections.push(selection);
 				break;
 			case "GROUP":
-				var group = _.extend({},saiku.report.GrouDefinition, {fieldId: fieldId, groupName: fieldId, type: GroupType.CT_COLUMN});				
+				var group = new saiku.report.GroupDefinition({fieldId: mc.id, groupName: mc.id, type: GroupType.RELATIONAL});				
 				if(indexFrom)
 				{
 					group = this.workspace.reportSpec.removeGroup(indexFrom);
 				}	
 				this.workspace.reportSpec.addGroup(group, index);
+				this.workspace.metadataQuery.mql.selections.push(selection);
 				break;
 			case "FILTER":
 				//var field = new saiku.report.DataField({fieldId: fieldId});		
@@ -224,15 +162,7 @@ var Query = Backbone.Model.extend({
 		}
 		
 		this.run();
-		
-		/* Properties kommen ursprünglich vom server... aber jetzt nichtmehr
-         if (this.properties
-                .properties['saiku.adhoc.query.automatic_execution'] === 'true' && target != 'FILTER') {
-                this.page=null;
-                this.run();
-         }
-		 */
-		
+	
     },
     
     url: function() {

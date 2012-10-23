@@ -61,7 +61,8 @@ var Workspace = Backbone.View.extend({
 		this.drop_zones.render();
 
 		//Create the UI-Statemachine
-		this.fsm = fsm = StateMachine.create(WORKSPACE_FSM_CONFIG, {},this);
+		//this.fsm = fsm = StateMachine.create(WORKSPACE_FSM_CONFIG, {},this);
+		this.fsm = StateMachine.create(WORKSPACE_FSM_CONFIG, {},this);
 
 		// Generate table
 		this.table = new Table({
@@ -273,13 +274,12 @@ var Workspace = Backbone.View.extend({
 		});
 
 		// Die neuen client-models
-		this.reportSpec = _.extend({},saiku.report.ReportSpecification,{reportName: "wupdi"});
-		this.serverReportSpec = null; 
-
-		// Save the query to the server and init the UI -- will we still need that?
-		if(this.selected_model){
-			this.query.save();	
-		}
+		this.reportSpec = new saiku.report.ReportSpecification({reportName: "myreport"});
+		this.serverReportSpec = null;  
+		this.metadataQuery = new saiku.mql.Query();
+		//is this to umständlich?
+		this.metadataQuery.mql.domain_id = domainName.replace("%2F","/");
+		this.metadataQuery.mql.model_id = modelId;
 
 		this.init_query();
 	},

@@ -13,7 +13,8 @@
         <!--[if lt IE 8]><link rel="stylesheet" href="css/blueprint/src/ie.css" type="text/css" media="screen, projection"><![endif]-->
 
         <!--  jQuery CSS -->
-        <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/smoothness/jquery-ui.css" type="text/css" media="all" />
+        <!--link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/smoothness/jquery-ui.css" type="text/css" media="all" /-->
+        <link rel="stylesheet" type="text/css" href="css/jquery/theme/smoothness/jquery-ui-1.8.20.custom.css" /> 
         <link rel="stylesheet" type="text/css" href="js/jquery/jcarousel/skins/ie7/skin.css" />
 		<link rel="stylesheet" type="text/css" href="js/jquery/colorpicker/css/colorpicker.css" />
 		<link rel="stylesheet" type="text/css" href="js/jquery/colorpicker/css/saiku.css" />
@@ -73,7 +74,7 @@
 		<script src="js/backbone/backbone.js"></script>
 
 		<script src="js/saiku-reporting/saiku-report-model.js"></script>
-		<script src="js/saiku-reporting/xtab-test.js"></script>
+<!-- 		 <script src="js/saiku-reporting/xtab-test.js"></script> -->
 		<script src="js/saiku-reporting/saiku-metadata-query.js"></script>
 		
 		<script src="js/adhoc/models/Session.js"></script>
@@ -108,6 +109,13 @@
 		<script src="js/adhoc/routers/QueryRouter.js"></script>
 	    <script src="js/adhoc/plugins/BIServer/plugin.js" defer></script>
 	    <script src="js/adhoc/plugins/I18n/plugin.js" defer></script>
+
+        <script>
+            var saiku = saiku || {};
+            saiku.mql = saiku.mql || {};
+            var exports = saiku.mql;
+        </script>
+        <script src="js/saiku-reporting/phomp.js"></script>
 
 		<!-- Templates -->
 		<script type="text/x-jquery-tmpl" id="template-models">
@@ -308,6 +316,9 @@
         
         <script type="text/x-jquery-tmpl" id="template-column-setup">
         	<div class="alertbox_standard">
+            <div id="description"> 
+
+            </div>
             <div id="displayname"> 
             	<label>Display Name:</label><input id="name">
                 </input>

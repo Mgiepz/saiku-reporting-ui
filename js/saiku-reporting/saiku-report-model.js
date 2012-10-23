@@ -54,12 +54,17 @@ var VerticalElementAlignment = {
  */
 ( function() {
 
-var RootBandFormat = {
+var RootBandFormat;
+(RootBandFormat = function(config) {config = config || {}; var p; for (p in config) {this[p] = config[p]}; }).prototype = 
+ 	{ 
 	repeat : true,
 	visible : true
 };
+saiku.report.RootBandFormat = RootBandFormat;
 
-var ElementFormat = {
+var ElementFormat;
+ (ElementFormat = function(config) {config = config || {}; var p; for (p in config) {this[p] = config[p]}; }).prototype = 
+ {
 	label: null,
 	fontName : null,
 	fontBold : null,
@@ -75,30 +80,28 @@ var ElementFormat = {
 	verticalAlignment : null,
 	width : null
 };
-saiku.report.ElementFormat = _.extend({}, ElementFormat);
+saiku.report.ElementFormat = ElementFormat;
 
-var FieldDefinition = {
+var FieldDefinition;
+ (FieldDefinition = function(config) {config = config || {}; var p; for (p in config) {this[p] = config[p]}; }).prototype =  
+{
 	fieldId : null,
 	fieldName : null,
 	fieldDescription : null,
 	dataFormat : null,
 	nullString : null,
-	headerFormat :  _.extend({}, ElementFormat),
+	headerFormat :   new ElementFormat(),
 	elementFormats: {},
-	aggregationFunction : AggregationFunction.NONE,
+	aggregationFunction : AggregationFunction.NONE, //for the summary, the row aggregation needs to be in the querymodel
+	formula: null,
 	hideOnReport : false,
 	hideRepeating : false
 };
-saiku.report.FieldDefinition = _.extend({}, FieldDefinition);
+saiku.report.FieldDefinition = FieldDefinition;
 
-var GroupCombination = {
-	rowGrp: null,
-	colGrp: null,
-	toString: function(){}
-}
-saiku.report.GroupCombination = _.extend({}, GroupCombination);
-
-var GroupDefinition = {
+var GroupDefinition;
+ (GroupDefinition = function(config) {config = config || {}; var p; for (p in config) {this[p] = config[p]}; }).prototype =  
+{
 	type : GroupType.RELATIONAL,
 	dataFormat : null,
 	nullString : null,
@@ -107,29 +110,37 @@ var GroupDefinition = {
 	sort : SortType.ASC,
 	groupName : null,
 	headerFormats : [],
-	footerFormat : _.extend({}, ElementFormat),
+	footerFormat : new ElementFormat()
 };
-saiku.report.GroupDefinition = _.extend({}, GroupDefinition);
+saiku.report.GroupDefinition = GroupDefinition;
 
-var Chart  = {
+var Chart;
+(Chart = function(config) {config = config || {}; var p; for (p in config) {this[p] = config[p]}; }).prototype =  
+{
 	cggUrl : null
 };
-saiku.report.Chart = _.extend({}, Chart);
+saiku.report.Chart = Chart;
 
-var Label = {
-	format : _.extend({}, ElementFormat),
+var Label;
+(Label = function(config) {config = config || {}; var p; for (p in config) {this[p] = config[p]}; }).prototype =  
+{
+	format : new ElementFormat(),
 	value : null
 };
-saiku.report.Label = _.extend({}, Label);
+saiku.report.Label = Label;
 
-var Datasource = {
+var Datasource;
+(Datasource = function(config) {config = config || {}; var p; for (p in config) {this[p] = config[p]}; }).prototype =  
+{
 	id: null,
 	type: DatasourceType.METADATA,
 	properties: []
 };
-saiku.report.Datasource = _.extend({}, Datasource);
+saiku.report.Datasource = Datasource;
 
-var PageSetup = {
+var PageSetup;
+(PageSetup = function(config) {config = config || {}; var p; for (p in config) {this[p] = config[p]}; }).prototype =  
+{
 	pageOrientation : null,
 	pageFormat : null,
 	topMargin : null,
@@ -137,9 +148,11 @@ var PageSetup = {
 	bottomMargin : null,
 	leftMargin : null
 };
-saiku.report.PageSetup = _.extend({}, PageSetup);
+saiku.report.PageSetup = PageSetup;
 
-var ReportSpecification = {
+var ReportSpecification;
+(ReportSpecification = function(config) {config = config || {}; var p; for (p in config) {this[p] = config[p]}; }).prototype = 
+{ 
 	reportName: null,
 	reportHeaders: [],	
 	reportFooters : [],					
@@ -160,16 +173,32 @@ var ReportSpecification = {
 		var uid = {
 			id 	: 		parts[0],
 			type: 		parts[1],
-			index1: 	parts[2],
-			index2: 	parts[3],
+			index: 		parts[2]
 			};
 				
 		return uid;
 	},	
+
+	_upsertNested: function(base, path, value) {
+		var lastName = arguments.length === 3 ? path.pop() : false;
+
+		for (var i = 0; i < path.length; i++) {
+			var pathElement = path[i+1];
+			if(isNaN(pathElement)){
+				base = base[path[i]] = base[path[i]] || {};                
+			}else{
+				base = base[path[i]] = base[path[i]] || [];       
+			}     
+		}
+		if(lastName) base = base[lastName] = value;
+		return base;
+	},
 	
 	addColumn : function(field, position) {
 		console.log("adding column " + field.fieldId + " at index " + position);
-		this.fieldDefinitions.splice(position, 0, field);
+		var array = this.hasOwnProperty("fieldDefinitions") ?
+            this["fieldDefinitions"] : this["fieldDefinitions"] = [];
+        array.splice(position, 0, field);
 	},	
 	
 	removeColumn : function(position) {
@@ -179,7 +208,9 @@ var ReportSpecification = {
 	},
 	
 	addGroup : function(group, position) {
-		this.groupDefinitions.splice(position, 0, group);
+		var array = this.hasOwnProperty("groupDefinitions") ?
+            this["groupDefinitions"] : this["groupDefinitions"] = [];
+		array.splice(position, 0, group);
 	},
 	
 	removeGroup : function(field, position) {
@@ -194,34 +225,29 @@ var ReportSpecification = {
 
 		switch (uid.type){
 			case "phd":
-				return this.pageHeaders[uid.index2]['format']; 
+				return this.pageHeaders[uid.index]['format']; 
 				break;
 			case "pft":
-				return this.pageFooters[uid.index2]['format']; 
+				return this.pageFooters[uid.index]['format']; 
 				break;
 			case "rhd":
-				return this.reportHeaders[uid.index2]['format']; 
+				return this.reportHeaders[uid.index]['format']; 
 				break;
 			case "rft":
-				return this.reportFooters[uid.index2]['format']; 
+				return this.reportFooters[uid.index]['format']; 
 				break;
 			case "ghd":
-				return this.groupDefinitions[uid.index1]['headerFormat'];
+				return this.groupDefinitions[uid.index]['headerFormat'];
 				break;
 			case "gft":
-				return this.groupDefinitions[uid.index1]['footerFormat'];
+				return this.groupDefinitions[uid.index]['footerFormat'];
 				break;
 			case "dth":
-				return this.fieldDefinitions[uid.index2]['headerFormat'];
+				return this.fieldDefinitions[uid.index]['headerFormat'];
 				break;
 			case "dtl":
-				return this.fieldDefinitions[uid.index2][{rowGrp:null,colGrp:null}]; //?
-				break;
-
-			//where did that come from in the old model	
-			case "sum":
-				return this.fieldDefinitions[uid.index2]['fieldFormat'];
-				break;					
+				return this.fieldDefinitions[uid.index]["*"]["*"]; //?
+				break;				
 		}
 				
 	},
@@ -230,87 +256,47 @@ var ReportSpecification = {
 						
 	removeChart: function(position){},	
 
-	getValueById: function(uid){},
-	
-	//puts an edited stringvalue or message into a Label or a fieldname if it is a columnheader
-	setValueById: function(xmlId, value){
-	
-		var uid = this._parseXmlId(xmlId);
-		//TODO
-		/*
-			switch (uid.type){
-			case "phd":
-				this.pageHeaders[uid.index2].format[property] = value;
-				break;
-			case "pft":
-				this.pageFooters[uid.index2].format[property] = value;
-				break;
-			case "rhd":
-				this.reportTitles[uid.index2].format[property] = value;;
-				break;
-			case "rft":
-				this.reportFooters[uid.index2].format[property] = value;
-				break;
-			case "ghd":
-				this.tableDefinition').groups[uid.index1].headerFormat[property] = value;
-				break;
-			case "gft":
-				this.tableDefinition').groups[uid.index1].footerFormat[property] = value;
-				break;
-			case "dth":
-				this.tableDefinition').columns[uid.index2].headerFormat[property] = value;
-				break;
-			case "dtl":
-				this.tableDefinition').columns[uid.index2].fieldFormat[property] = value;
-				break;
-			case "sum":
-				this.tableDefinition').columns[uid.index2].fieldFormat[property] = value;
-				break;					
-		}
-		*/
-	},
+	getValueById: function(uid){}, //for inplace-edit
+
+	setValueById: function(xmlId, value){}, //for inplace-edit
 	
 	setElementFormatPropertyById: function(xmlId, property, value){
 
 		var uid = this._parseXmlId(xmlId);
 
+		var path;
+
 		switch (uid.type){
 			case "phd":
-				if(!this.pageHeaders[uid.index2]) this.pageHeaders[uid.index2] = _.extend({},Label);
-				this.pageHeaders[uid.index2]['format'][property] = value;
-				break;
+			path = ["pageHeaders",uid.index,"format",property];
+			break;
 			case "pft":
-				if(!this.pageFooters[uid.index2]) this.pageFooters[uid.index2] = _.extend({},Label);
-				this.pageFooters[uid.index2]['format'][property] = value;
-				break;
+			path = ["pageFooters",uid.index,"format",property];
+			break;
 			case "rhd":
-				if(!this.reportTitles[uid.index2]) this.reportHeaders[uid.index2] = _.extend({},Label);
-				this.reportTitles[uid.index2]['format'][property] = value;;
-				break;
+			path = ["reportHeaders",uid.index,"format",property];
+			break;
 			case "rft":
-				if(!this.reportFooters[uid.index2]) this.reportFooters[uid.index2] = _.extend({},Label);
-				this.reportFooters[uid.index2]['format'][property] = value;
-				break;
+			path = ["reportFooters",uid.index,"format",property];
+			break;
 			case "ghd":
-				this.tableDefinition.groups[uid.index1]['headerFormat'][property] = value;
-				break;
+			path = ["groupDefinitions",uid.index,"headerFormat",property];
+			break;
 			case "gft":
-				this.tableDefinition.groups[uid.index1]['footerFormat'][property] = value;
-				break;
+			path = ["groupDefinitions",uid.index,"footerFormat",property];
+			break;
 			case "dth":
-				this.tableDefinition.columns[uid.index2]['headerFormat'][property] = value;
-				break;
+			path = ["fieldDefinitions",uid.index,"headerFormat",property];
+			break;
 			case "dtl":
-				this.tableDefinition.columns[uid.index2]['fieldFormat'][property] = value;
-				break;
-			case "sum":
-				this.tableDefinition.columns[uid.index2]['fieldFormat'][property] = value;
-				break;					
+			path = ["fieldDefinitions",uid.index,"elementFormats","*","*",property];
+			break;				
 		}
-		
-	},
-	
-};
-saiku.report.ReportSpecification = _.extend({}, ReportSpecification);
 
+		this._upsertNested(this,path,value);
+		
+	}
+
+};
+saiku.report.ReportSpecification = ReportSpecification;
 }());

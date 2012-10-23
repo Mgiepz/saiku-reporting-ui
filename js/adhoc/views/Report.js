@@ -70,7 +70,7 @@ var Report = Backbone.View.extend({
     	
     	this.json = json.data;
 		var servermodel = json.data.reportModel;
-		this.workspace.serverReportSpec = _.extend({},saiku.report.ReportSpecification, servermodel);
+		this.workspace.serverReportSpec = new saiku.report.ReportSpecification(servermodel);
     	
     	var html = json.data.data;
 

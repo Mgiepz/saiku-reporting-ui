@@ -58,68 +58,74 @@ var ColumnConfigModal = Modal.extend({
       if(!(this.category == 'CALCULATED' && this.column == 'NEW')){
       	this.fetch_values();
       }else{
-      	
+      	/* Vorerst keine calculated columns mehr
       	var temp = defaultCalcColumn;
       	
       	this.json = $.extend(true, {}, defaultCalcColumn);
 
       	this.populate();
+        */
       }
 
     },
 
     fetch_values: function(category, column) {
 
-        this.workspace.query.action.get("/COLUMNS/CATEGORY/" + this.category + "/COLUMN/" + this.column + "/POSITION/" + this.index + "/config", { 
-            success: this.populate
-        });
+        this.populate();
+
     },
 
-    populate: function(model, response) {
+    populate: function() {
+
+      this.columnDefinition = this.workspace.reportSpec.fieldDefinitions[this.index];
+
+      var domainId = this.workspace.query.attributes.domainId;
+      var modelId = this.workspace.query.attributes.modelId;
+
+      var model = Application.session.mdModels[domainId + "/" + modelId];
+
+      var metadataColumn = model.getColumnById(this.category,this.column);
+      var dataType = metadataColumn.type;
+      var aggTypes = metadataColumn.aggTypes;
 
      	var template = _.template($("#template-column-setup").html())(this);
-
-   	
-     	if(response != null){
-     		this.json = response;
-     	}
-     	
+	
      	$(this.el).find('.dialog_body').html(template);
      	
-     	$(this.el).find('#description').html(this.json.description);
+     	$(this.el).find('#description').html(this.columnDefinition.fieldDescription);
      	
      	//formula element needs to be made visible
      	if(this.category == 'CALCULATED'){
-     		$(this.el).find('#formula').removeClass('hide').find('.formula').val(this.json.formula);
+     		$(this.el).find('#formula').removeClass('hide').find('.formula').val(this.columnDefinition.formula);
      	}
 
-     	$(this.el).find('#displayname input').val(this.json.name);
+     	$(this.el).find('#displayname input').val(this.columnDefinition.fieldName);
      	
-     	$(this.el).find('#format input').val(this.json.formatMask);   	
-     	if(this.json.fieldType=='Numeric'||this.json.fieldType=='Date'){
+     	$(this.el).find('#format input').val(this.columnDefinition.dataFormat);   	
+     	if(dataType=='NUMERIC'||dataType=='DATE'){
      		$(this.el).find('#format input').removeAttr('disabled');
      	}
-     	
-     	if(this.json.aggTypes!=null){
-            for (var j = 0; j < this.json.aggTypes.length; j++) {
-                var value = this.json.aggTypes[j];
+
+     	if(aggTypes!=null){
+            for (var j = 0; j < aggTypes.length; j++) {
+                var value = aggTypes[j];
                     $("<option />").text(AggTypes[value])
                         .val(value)
                         .appendTo($(this.el).find('#aggregation select'));
            	}
  		} 
 
-		$(this.el).find('#aggregation select').val(this.json.selectedAggType);
-		
-		$(this.el).find('#hide_repeating').attr('checked', this.json.hideRepeating);
- 		$(this.el).find('#hide_on_report').attr('checked', this.json.hideOnReport);
+		$(this.el).find('#aggregation select').val(this.columnDefinition.aggregationFunction); //this should be coming from the mql
+
+		$(this.el).find('#hide_repeating').attr('checked', this.columnDefinition.hideRepeating);
+ 		$(this.el).find('#hide_on_report').attr('checked', this.columnDefinition.hideOnReport);
  
         for (var value in AggTypes) {
               $("<option />").text(AggTypes[value]).val(value)
                 .appendTo($(this.el).find('#summary select'));    			
 		}
             	
-     	$(this.el).find('#summary select').val(this.json.selectedSummaryType);
+     	$(this.el).find('#summary select').val(this.columnDefinition.aggregationFunction);
 
      	// Show dialog
         Application.ui.unblock();
@@ -131,31 +137,33 @@ var ColumnConfigModal = Modal.extend({
     },
     
     save: function() {
-    	
-    	this.json.name = $(this.el).find('#displayname input').val();
-    	this.json.formatMask = $(this.el).find('#format input').val();   
+
+    	this.columnDefinition.fieldName = $(this.el).find('#displayname input').val();
+    	this.columnDefinition.dataFormat = $(this.el).find('#format input').val();   
 
 		if(!$(this.el).find('#formula').hasClass('hide')){
-			this.json.formula = $(this.el).find('#formula .formula').val();   		
+			this.columnDefinition.fieldName.formula = $(this.el).find('#formula .formula').val();   		
 		};
 
-    	this.json.selectedAggType = $(this.el).find('#aggregation select').val();   
-    	this.json.selectedSummaryType = $(this.el).find('#summary select').val();  
+    	//this.json.selectedAggType = $(this.el).find('#aggregation select').val(); <-this has to go to the querymodel  
+    	this.columnDefinition.aggregationFunction = $(this.el).find('#summary select').val();  
 
-
-    	this.json.hideRepeating = $(this.el).find('#hide_repeating').is(':checked');  
-    	this.json.hideOnReport = $(this.el).find('#hide_on_report').is(':checked');  
+    	this.columnDefinition.hideRepeating = $(this.el).find('#hide_repeating').is(':checked');  
+    	this.columnDefinition.hideOnReport = $(this.el).find('#hide_on_report').is(':checked');  
     	
-    	$(this.el).find('#hide_repeating').attr('checked', this.json.hideRepeating);
- 		$(this.el).find('#hide_on_report').attr('checked', this.json.hideOnReport);
+    	$(this.el).find('#hide_repeating').attr('checked', this.columnDefinition.hideRepeating);
+ 		   $(this.el).find('#hide_on_report').attr('checked', this.columnDefinition.hideOnReport);
  
-    	if(this.json.uid == null) this.json.uid = this.workspace.uniqueId('uid-');
+    	//if(this.json.uid == null) this.json.uid = this.workspace.uniqueId('uid-');
     	   	
         // Notify user that updates are in progress
         this.loading = $("<div>Saving...</div>");
         $(this.el).find('.dialog_body').children().hide();
         $(this.el).find('.dialog_body').prepend(this.loading);
-       
+
+        this.finished();
+
+        /*
         var self = this;
        
         // Notify server
@@ -164,7 +172,7 @@ var ColumnConfigModal = Modal.extend({
             error: this.error,    
             data: this.json// JSON.stringify(values)
         });
-        
+        */
         return false;
     },
     
@@ -198,12 +206,13 @@ var ColumnConfigModal = Modal.extend({
    },
     
     finished: function(response) {
-    	
+/*
       	if(this.category == 'CALCULATED' && this.column == 'NEW'){
       		this.add_calculated_column();
         }
         
-		$('li#' + response.uid ).find('.dimension').html(response.displayName);
+		$('li#' + response.uid ).find('.dimension').html(response.displayName); <- if the server wants to rename the column
+*/
 
         $(this.el).dialog('destroy').remove();
         this.query.run();

@@ -48,8 +48,10 @@ var ReportResult = Backbone.Model.extend({
 	fetch: function (options) {
          options.cache = false;
 		 options.type = 'POST';
-		 options.contentType =  'application/json', 
+		 options.contentType =  'application/json'; 
 		 //options.data = JSON.stringify(testmodel);
+		 var test = this.query.workspace.reportSpec;
+		 var stringTest = JSON.stringify(test);
 		 options.data = JSON.stringify(this.query.workspace.reportSpec);
          return Backbone.Model.prototype.fetch.call(this, options);
      }

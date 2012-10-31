@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html style="padding:0px; margin: 0px; position:absolute; top: 0px; bottom: 0px; left: 0px; right: 0px; width: 100%; height: 100%;">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title></title>
+  </head>
+  <body style="padding:0px; margin: 0px; position:absolute; top: 0px; bottom: 0px; left: 0px; right: 0px; width: 100%; height: 100%;">
+    <textarea id="formula" style="position:relative; top: 0px; left: 0px; height:48%; width: 100%">
+ISERR(IF(COS("hi")=1;1/0;0))
+    </textarea>
+    <div>
+      <button onclick="parseFormula()">Parse..</button>
+    </div>
+    <textarea id="json" style="position:relative; height:48%; width: 100%"></textarea>
+    <script type="text/javascript" src="phomp.js"></script>
+    <script type="text/javascript">
+      function parseFormula() {
+        document.getElementById("json").value = Phomp.formulaToJson(
+          document.getElementById("formula").value,
+          "  "
+        );
+      }
+
+      function toText() {
+        document.getElementById("formula").value = Phomp.jsonToFormula(
+          document.getElementById("json").value
+        );
+      }
+    </script>
+  </body>
+</html>

@@ -276,10 +276,7 @@ var Workspace = Backbone.View.extend({
 		// Die neuen client-models
 		this.reportSpec = new saiku.report.ReportSpecification({reportName: "myreport"});
 		this.serverReportSpec = null;  
-		this.metadataQuery = new saiku.mql.Query();
-		//is this to umständlich?
-		this.metadataQuery.mql.domain_id = domainName.replace("%2F","/");
-		this.metadataQuery.mql.model_id = modelId;
+		this.metadataQuery = new saiku.mql.Query({mql:{domain_id: domainName.replace("%2F","/"), model_id: modelId}});
 
 		this.init_query();
 	},

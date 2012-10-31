@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html style="padding:0px; margin: 0px; position:absolute; top: 0px; bottom: 0px; left: 0px; right: 0px; width: 100%; height: 100%;">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title></title>
+  </head>
+  <body style="padding:0px; margin: 0px; position:absolute; top: 0px; bottom: 0px; left: 0px; right: 0px; width: 100%; height: 100%;">
+    <textarea id="mql" style="position:relative; top: 0px; left: 0px; height:48%; width: 100%">
+<?xml version="1.0" encoding="UTF-8"?>
+<mql>
+<domain_type>relational</domain_type>
+<domain_id>Sales/metadata.xmi</domain_id>
+<model_id>BV_MODEL_1_Sales_and_finance</model_id>
+<options>
+<disable_distinct>false</disable_distinct>
+</options>
+<parameters>
+<parameter defaultValue="&amp;quot;2009&amp;quot;" name="year" type="STRING"/>
+<parameter defaultValue="1|2|3|4" name="quarter" type="NUMERIC"/>
+<parameter defaultValue="&amp;quot;Apr&amp;quot;|&amp;quot;Aug&amp;quot;|&amp;quot;Dec&amp;quot;|&amp;quot;Feb&amp;quot;|&amp;quot;Jan&amp;quot;|&amp;quot;Jul&amp;quot;|&amp;quot;Jun&amp;quot;|&amp;quot;Mar&amp;quot;|&amp;quot;May&amp;quot;|&amp;quot;Nov&amp;quot;|&amp;quot;Oct&amp;quot;|&amp;quot;Sep&amp;quot;" name="month" type="STRING"/>
+<parameter defaultValue="&amp;quot;East&amp;quot;|&amp;quot;North&amp;quot;|&amp;quot;South&amp;quot;|&amp;quot;West&amp;quot;" name="region" type="STRING"/><parameter defaultValue="&amp;quot;Analog&amp;quot;|&amp;quot;Digital&amp;quot;" name="prodtype" type="STRING"/><parameter defaultValue="&amp;quot;Camcorders&amp;quot;|&amp;quot;Cameras&amp;quot;|&amp;quot;DVD Players&amp;quot;|&amp;quot;PDA Devices&amp;quot;|&amp;quot;Portables&amp;quot;|&amp;quot;VCRs&amp;quot;" name="prodcat" type="STRING"/><parameter defaultValue="&amp;quot;Cancelled&amp;quot;|&amp;quot;Disputed&amp;quot;|&amp;quot;On Hold&amp;quot;" name="status" type="STRING"/>
+</parameters>
+<selections>
+<selection>
+<table>BC_CCOMP</table>
+<column>BC_CCOMP_REGION</column>
+<aggregation>NONE</aggregation></selection>
+<selection>
+<table>BC_TIME</table>
+<column>BC_CORD_YEAR</column>
+<aggregation>NONE</aggregation></selection>
+<selection>
+<table>BC_CORD</table>
+<column>BC_ORDERS_ORDER_STATUS</column>
+<aggregation>NONE</aggregation></selection>
+<selection>
+<table>BC_CORD</table>
+<column>BC_CORD_ORDER_NUM</column>
+<aggregation>NONE</aggregation></selection>
+<selection>
+<table>BC_CORD</table>
+<column>BC_CORD_LINEPRICE</column>
+<aggregation>SUM</aggregation></selection>
+<selection>
+<table>BC_CORD</table>
+<column>BC_CORD_LINE_COGS</column>
+<aggregation>SUM</aggregation></selection>
+<selection>
+<table>BC_CORD</table>
+<column>BC_ORDERS_PROFIT</column>
+<aggregation>SUM</aggregation></selection>
+<selection>
+<table>BC_CORD</table>
+<column>BC_ORDERS_MARGIN</column>
+<aggregation>AVERAGE</aggregation></selection>
+<selection>
+<table>BC_CORD</table>
+<column>BC_CORD_QUANTITY</column>
+<aggregation>SUM</aggregation></selection>
+</selections>
+<constraints>
+<constraint>
+<operator>AND</operator>
+<condition><![CDATA[EQUALS([BC_TIME.BC_CORD_YEAR];[param:year])]]></condition>
+</constraint>
+<constraint>
+<operator>AND</operator>
+<condition><![CDATA[EQUALS([BC_TIME.BC_ORDERS_QUARTER];[param:quarter])]]></condition>
+</constraint>
+<constraint>
+<operator>AND</operator>
+<condition><![CDATA[EQUALS([BC_TIME.BC_CORD_MONTH];[param:month])]]></condition>
+</constraint>
+<constraint>
+<operator>AND</operator>
+<condition><![CDATA[EQUALS([BC_CCOMP.BC_CCOMP_REGION];[param:region])]]></condition>
+</constraint>
+<constraint>
+<operator>AND</operator>
+<condition><![CDATA[EQUALS([BC_CINV.BC_CINV_PRODTYPE];[param:prodtype])]]></condition>
+</constraint>
+<constraint>
+<operator>AND</operator>
+<condition><![CDATA[EQUALS([BC_CINV.BC_CINV_PRODCAT];[param:prodcat])]]></condition>
+</constraint>
+<constraint>
+<operator>AND</operator>
+<condition><![CDATA[EQUALS([BC_CORD.BC_ORDERS_ORDER_STATUS];[param:status])]]></condition>
+</constraint>
+</constraints>
+<orders>
+<order>
+<direction>ASC</direction>
+<view_id>BC_CCOMP</view_id>
+<column_id>BC_CCOMP_REGION</column_id>
+</order>
+<order>
+<direction>ASC</direction>
+<view_id>BC_TIME</view_id>
+<column_id>BC_CORD_YEAR</column_id>
+</order>
+<order>
+<direction>ASC</direction>
+<view_id>BC_CORD</view_id>
+<column_id>BC_ORDERS_ORDER_STATUS</column_id>
+</order>
+<order>
+<direction>DESC</direction>
+<view_id>BC_CORD</view_id>
+<column_id>BC_ORDERS_MARGIN</column_id>
+</order>
+</orders>
+</mql>
+    </textarea>
+    <div>
+      <button onclick="toJson()">To JSON...</button>
+      <button onclick="toMql()">To MQL...</button>
+    </div>
+    <textarea id="json" style="position:relative; height:48%; width: 100%"></textarea>
+    <script type="text/javascript" src="phomp.js"></script>
+    <script type="text/javascript">
+      function toJson() {
+        document.getElementById("json").value = Phomp.mqlToJson(
+          document.getElementById("mql").value,
+          "  "
+        );
+      }
+
+      function toMql() {
+        document.getElementById("mql").value = Phomp.jsonToMql(
+          document.getElementById("json").value
+        );
+      }
+    </script>
+  </body>
+</html>

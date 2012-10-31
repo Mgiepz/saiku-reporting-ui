@@ -77,7 +77,8 @@ var ColumnConfigModal = Modal.extend({
 
     populate: function() {
 
-      this.columnDefinition = this.workspace.reportSpec.fieldDefinitions[this.index];
+      this.columnDefinition = this.workspace.reportSpec.fieldDefinitions[this.index]; //TODO: umstellen auf getter
+      this.mqlSelection = this.workspace.metadataQuery.getSelection(this.index);
 
       var domainId = this.workspace.query.attributes.domainId;
       var modelId = this.workspace.query.attributes.modelId;
@@ -115,7 +116,7 @@ var ColumnConfigModal = Modal.extend({
            	}
  		} 
 
-		$(this.el).find('#aggregation select').val(this.columnDefinition.aggregationFunction); //this should be coming from the mql
+		$(this.el).find('#aggregation select').val(this.mqlSelection.aggregation); //this should be coming from the mql
 
 		$(this.el).find('#hide_repeating').attr('checked', this.columnDefinition.hideRepeating);
  		$(this.el).find('#hide_on_report').attr('checked', this.columnDefinition.hideOnReport);
@@ -145,7 +146,7 @@ var ColumnConfigModal = Modal.extend({
 			this.columnDefinition.fieldName.formula = $(this.el).find('#formula .formula').val();   		
 		};
 
-    	//this.json.selectedAggType = $(this.el).find('#aggregation select').val(); <-this has to go to the querymodel  
+      this.mqlSelection.aggregation = $(this.el).find('#aggregation select').val();
     	this.columnDefinition.aggregationFunction = $(this.el).find('#summary select').val();  
 
     	this.columnDefinition.hideRepeating = $(this.el).find('#hide_repeating').is(':checked');  
@@ -163,17 +164,7 @@ var ColumnConfigModal = Modal.extend({
 
         this.finished();
 
-        /*
-        var self = this;
-       
-        // Notify server
-            this.query.action.post("/COLUMNS/CATEGORY/" + this.category + "/COLUMN/" + this.column + "/POSITION/" + this.index + "/config", { 
-            success: this.finished,
-            error: this.error,    
-            data: this.json// JSON.stringify(values)
-        });
-        */
-        return false;
+        return true;
     },
     
     error: function(){

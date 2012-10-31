@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html style="padding:0px; margin: 0px; position:absolute; top: 0px; bottom: 0px; left: 0px; right: 0px; width: 100%; height: 100%;">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title></title>
+  </head>
+  <body style="padding:0px; margin: 0px; position:absolute; top: 0px; bottom: 0px; left: 0px; right: 0px; width: 100%; height: 100%;">
+    <div>
+      <button onclick="doStringify()">Stringify..</button>
+    </div>
+    <textarea id="json" style="position:relative; height:100%; width: 100%"></textarea>
+
+
+    <script type="text/javascript">
+
+upsertNested = function(base, path, value) {
+    var lastName = arguments.length === 3 ? path.pop() : false;
+
+    for (var i = 0; i < path.length; i++) {
+        var pathElement = path[i+1];
+        if(isNaN(pathElement)){
+            base = base[path[i]] = base[path[i]] || {};                
+        }else{
+          console.log(pathElement + " is a number");
+          base = base[path[i]] = base[path[i]] || [];       
+        }     
+    }
+    if(lastName) base = base[lastName] = value;
+    return base;
+};
+                                                                           
+doStringify = function(){
+    var myReport = {};
+    //upsertNested(myReport, ["p1","y1",0,"key","childkey"], "wert1");
+    /*
+    upsertNested(myReport, ["p1","y1",1,"key"], "wert2");
+    upsertNested(myReport, ["p2",0,"key"], "wert2");
+    upsertNested(myReport, ["p2",1,"key"], "wert2");
+    upsertNested(myReport, ["p2",3,"key"], "wert2");
+    */
+    upsertNested( myReport , ["pageHeaders",2,"format","backgroundColor"], "blue");
+    document.getElementById("json").value = JSON.stringify(myReport);
+}
+    </script>
+  </body>
+</html>

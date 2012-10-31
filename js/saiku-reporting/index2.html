@@ -4,7 +4,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<script src="http://ajax.cdnjs.com/ajax/libs/underscore.js/1.1.4/underscore-min.js"></script>
-        <script type="text/javascript" src="saiku-metadata-query.js"></script>
+        <!--script type="text/javascript" src="saiku-metadata-query.js"></script-->
 		<style type="text/css">
 		body { white-space: pre; font-family: monospace; }​
 </style>
@@ -17,11 +17,33 @@
        <div id="content"></div>
        <script type="text/javascript" charset="utf-8">
 	   
-		var query = new saiku.mql.MqlQuery();
-        var selection = new saiku.mql.MqlSelection({id: "dert", category: "test"});
-		query.addSelection(selection);
-		document.body.appendChild(document.createTextNode(query.toXml()));
-		
+var saiku = {};
+( function() {
+var Query;
+(Query = function(config){
+
+    var defaultConfig = {
+      mql: {
+        domain_type: "relational",
+        domain_id: null,
+        model_id: null,
+        selections: [],
+        orders: [],
+        options: {disable_distinct: "false"}
+      }
+    };
+
+console.log(defaultConfig.mql.domain_type);
+    //something more gonna happen here
+    this.config=config;
+
+  }).prototype = {blub: function(){alert("again " + this.config.dert);}};
+    saiku.Query = Query;
+  }());
+
+var query = new saiku.Query({dert: "bla"});
+query.blub();
+
        </script>
 
     </body>

@@ -86,7 +86,7 @@ var Query = Backbone.Model.extend({
             return;
         }
 		
-		var mqlQueryString = saiku.mql.Phomp.jsToMql(this.workspace.metadataQuery);
+		var mqlQueryString = this.workspace.metadataQuery.toXml();
 
 		this.workspace.reportSpec.dataSource = new saiku.report.Datasource({id: "master" , properties: {queryString:mqlQueryString}});
 
@@ -131,12 +131,12 @@ var Query = Backbone.Model.extend({
       	var columnId = fieldInfo[3]
 		var mc = model.getColumnById(categoryId,columnId);
 
-		var selection = new saiku.mql.Selection({table:categoryId, column:columnId});
-
+		var selection = {table:categoryId, column:columnId};
+/*
 if(index===-1){
 remove the column
 }
-
+*/
 		switch(target){
 			case "COLUMNS":
 				var field = new saiku.report.FieldDefinition({fieldId: mc.id, fieldName: mc.name, fieldDescription: mc.description});
@@ -145,7 +145,7 @@ remove the column
 					field = this.workspace.reportSpec.removeColumn(indexFrom);
 				}	
 				this.workspace.reportSpec.addColumn(field, index);
-				this.workspace.metadataQuery.mql.selections.push(selection);
+				this.workspace.metadataQuery.addSelection(selection);
 				break;
 			case "GROUP":
 				var group = new saiku.report.GroupDefinition({fieldId: mc.id, groupName: mc.id, type: GroupType.RELATIONAL});				
@@ -154,7 +154,7 @@ remove the column
 					group = this.workspace.reportSpec.removeGroup(indexFrom);
 				}	
 				this.workspace.reportSpec.addGroup(group, index);
-				this.workspace.metadataQuery.mql.selections.push(selection);
+				this.workspace.metadataQuery.addSelection(selection);
 				break;
 			case "FILTER":
 				//var field = new saiku.report.DataField({fieldId: fieldId});		

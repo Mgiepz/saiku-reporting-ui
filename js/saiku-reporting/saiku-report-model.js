@@ -92,7 +92,7 @@ var FieldDefinition;
 	nullString : null,
 	headerFormat :   new ElementFormat(),
 	elementFormats: {},
-	aggregationFunction : AggregationFunction.NONE, //for the summary, the row aggregation needs to be in the querymodel
+	aggregationFunction : AggregationFunction.SUM, //for the summary, the row aggregation needs to be in the querymodel
 	formula: null,
 	hideOnReport : false,
 	hideRepeating : false
@@ -246,7 +246,7 @@ var ReportSpecification;
 				return this.fieldDefinitions[uid.index]['headerFormat'];
 				break;
 			case "dtl":
-				return this.fieldDefinitions[uid.index]["*"]["*"]; //?
+				return this.fieldDefinitions[uid.index]['elementFormats']['*']['*'];
 				break;				
 		}
 				
@@ -256,9 +256,63 @@ var ReportSpecification;
 						
 	removeChart: function(position){},	
 
-	getValueById: function(uid){}, //for inplace-edit
+	getValueById: function(xmlId){
 
-	setValueById: function(xmlId, value){}, //for inplace-edit
+		var uid = this._parseXmlId(xmlId);
+
+		switch (uid.type){
+			case "phd":
+				return this.pageHeaders[uid.index]['value']; 
+				break;
+			case "pft":
+				return this.pageFooters[uid.index]['value']; 
+				break;
+			case "rhd":
+				return this.reportHeaders[uid.index]['value']; 
+				break;
+			case "rft":
+				return this.reportFooters[uid.index]['value']; 
+				break;
+			case "ghd":
+				//return this.groupDefinitions[uid.index]['headerFormat'];
+				break;
+			case "dth":
+				return this.fieldDefinitions[uid.index]['fieldName'];
+				break;				
+		}
+
+	}, //for inplace-edit
+
+	setValueById: function(xmlId, value){
+
+		var uid = this._parseXmlId(xmlId);
+
+		var path;
+
+		switch (uid.type){
+			case "phd":
+			path = ["pageHeaders",uid.index,"value"];
+			break;
+			case "pft":
+			path = ["pageFooters",uid.index,"value"];
+			break;
+			case "rhd":
+			path = ["reportHeaders",uid.index,"value"];
+			break;
+			case "rft":
+			path = ["reportFooters",uid.index,"value"];
+			break;
+			//case "ghd":
+			//path = ["groupDefinitions",uid.index,"headerFormat"];
+			//break;
+			case "dth":
+			path = ["fieldDefinitions",uid.index,"fieldName"];
+			break;			
+		}
+
+		this._upsertNested(this,path,value);
+
+	}, //for inplace-edit
 	
 	setElementFormatPropertyById: function(xmlId, property, value){
 

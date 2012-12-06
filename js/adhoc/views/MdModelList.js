@@ -74,7 +74,7 @@ var MdModelList = Backbone.View.extend({
         $(this.el).find('.measure,.dimension').parent('li').draggable({
             cancel: '.not-draggable, .hierarchy',
             connectToSortable: $(this.workspace.el)
-                .find('.columns > ul, .group > ul, .filter > ul'),
+                .find('.measures > ul, .relgroups > ul, .colgroups > ul, .rowgroups > ul, .filters > ul'),
             helper: 'clone',
             opacity: 0.60,
             tolerance: 'pointer',
@@ -90,7 +90,7 @@ var MdModelList = Backbone.View.extend({
             return;
         }
         
-        $axis = $(this.workspace.el).find(".columns ul");
+        $axis = $(this.workspace.el).find(".measures ul");
         $target = $(event.target).parent().clone()
             .appendTo($axis);
         this.workspace.drop_zones.select_dimension({

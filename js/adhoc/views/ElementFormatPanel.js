@@ -40,7 +40,7 @@ var ElementFormatPanel = Backbone.View.extend({
 		_.extend(this, args);
 		_.extend(this, Backbone.Events);
 
-		_.bindAll(this, "render","reflect_format","fetch_values","save","call", "disable_buttons", "enable_buttons",
+		_.bindAll(this, "render","reflect_format","fetch_values","save","call", "disable_buttons", "enable_buttons", "finished",
 				"align_left","align_center","align_right","textcolor_callback","size_select","enable_template_button"			
 		);
 
@@ -164,7 +164,6 @@ var ElementFormatPanel = Backbone.View.extend({
 	
 		this.query = this.workspace.query;
 		this.reportSpec =  this.workspace.reportSpec;
-
 		
 		this.enable_buttons();
 
@@ -195,11 +194,10 @@ var ElementFormatPanel = Backbone.View.extend({
 		//TODO: Here I have to know what the value is
 		//i.e. Label->value or DataField->fieldNames
 		//this has to be passed in here too!
-		var value = "HONK";
-		
+
 		var inplaceEditDelegate = {
 				willOpenEditInPlace: function(aDOMNode, aSettingsDict) {
-					return value; //is that in scope?
+					return that.workspace.serverReportSpec.getValueById(that.element);
 				}
 		};
 		
@@ -233,8 +231,8 @@ var ElementFormatPanel = Backbone.View.extend({
 						return true;
 					},
 					delegate: inplaceEditDelegate,		
-					default_text: function(){return that.reportSpec.getValueById(that.element)},
-					select_text: function(){return that.reportSpec.getValueById(that.element)},
+					default_text: function(){return that.workspace.serverReportSpec.getValueById(that.element)},
+					select_text: function(){return that.workspace.serverReportSpec.getValueById(that.element)},
 					save_if_nothing_changed: true,
 					select_options: "selected:disabled"
 				});
@@ -265,12 +263,9 @@ var ElementFormatPanel = Backbone.View.extend({
 		return false;
 	},
 	
-	/*
 	finished: function(response) {	
-		if(response) $('li#' + response.uid ).find('.dimension').html(response.displayName); 
 		this.query.run();
 	},
-	*/
 
 	call: function(event) {
 		//Determine callback

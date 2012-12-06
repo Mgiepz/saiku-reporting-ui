@@ -41,7 +41,8 @@ var WorkspaceDropZone = Backbone.View.extend({
         
         // Maintain `this` in jQuery event handlers
         _.bindAll(this, "select_dimension", "move_dimension", 
-                "remove_dimension", "sort");
+                "remove_dimension", 
+                "sort");
     },
     
     render: function() {
@@ -63,19 +64,36 @@ var WorkspaceDropZone = Backbone.View.extend({
             tolerance: 'pointer'
         });
 
+        if(Settings.MODE==='crosstab'){
+            $(this.el).find('.fields_list[title=REL_GROUPS]').hide();
+        }else{
+            $(this.el).find('.fields_list[title=COL_GROUPS]').hide();
+            $(this.el).find('.fields_list[title=ROW_GROUPS]').hide();
+        }
+
         //Droprules: Prevent calculated columns from being dropped 
         //TODO: make more readable
-		$(this.el).find('.filter ul').bind("sortreceive", function(event, ui) {
+		$(this.el).find('.filters ul').bind("sortreceive", function(event, ui) {
 			if($(ui.item).hasClass('calculated') || $(ui.item).find('span').hasClass('sort')) {
             	$(ui.sender).sortable('cancel');
         	}
 		});
-		$(this.el).find('.group ul').bind("sortreceive", function(event, ui) {
+		$(this.el).find('.relgroups ul').bind("sortreceive", function(event, ui) {
 			if($(ui.item).hasClass('calculated') || $(ui.item).find('span').hasClass('sprite')) {
             	$(ui.sender).sortable('cancel');
         	}
 		});
-		$(this.el).find('.columns ul').bind("sortreceive", function(event, ui) {
+        $(this.el).find('.colgroups ul').bind("sortreceive", function(event, ui) {
+            if($(ui.item).hasClass('calculated') || $(ui.item).find('span').hasClass('sprite')) {
+                $(ui.sender).sortable('cancel');
+            }
+        });
+        $(this.el).find('.rowgroups ul').bind("sortreceive", function(event, ui) {
+            if($(ui.item).hasClass('calculated') || $(ui.item).find('span').hasClass('sprite')) {
+                $(ui.sender).sortable('cancel');
+            }
+        });
+		$(this.el).find('.measures ul').bind("sortreceive", function(event, ui) {
 			if($(ui.item).find('span').hasClass('sprite')) {
             	$(ui.sender).sortable('cancel');
         	}
@@ -109,17 +127,17 @@ var WorkspaceDropZone = Backbone.View.extend({
             .css({fontWeight: "bold"});
         
         // Wrap with the appropriate parent element
-        if (ui.item.find('a').hasClass('dimension')) {
-            
-            //var $icon = $("<span />").addClass('sprite');
-            if(ui.item.parents('.fields_list').attr('title')=='COLUMNS' || 
-            	ui.item.parents('.fields_list').attr('title')=='GROUPS'){
-            	var $icon = $("<span />").addClass('sort').addClass('none');
+        if (ui.item.find('a').hasClass('dimension')) {            
+            var $icon;
+            var title = ui.item.parents('.fields_list').attr('title');
+            if(title=='REL_GROUPS' || title=='COL_GROUPS' || title=='ROW_GROUPS'){
+            	 $icon = $("<span />").addClass('sort').addClass('asc');
+            }else if(title=='MEASURES'){
+                 $icon = $("<span />").addClass('sort').addClass('none');
             }
             else{
-            	$icon = $("<span />").addClass('sprite');
-            }
-            
+            	$icon = $("<span/>").addClass('sprite');
+            }        
             ui.item.addClass('d_dimension').prepend($icon);
         } else {
             ui.item.addClass('d_measure');
@@ -165,12 +183,15 @@ var WorkspaceDropZone = Backbone.View.extend({
         }
   
 		//reassign icon
-		if(ui.item.parents('.fields_list').attr('title')=='COLUMNS' ||
-		ui.item.parents('.fields_list').attr('title')=='GROUPS') {
-			ui.item.find('span').removeClass('sprite').addClass('sort').addClass('none');
-		} else {
-			ui.item.find('span').removeClass('sort').addClass('sprite');
-		}
+        var title = ui.item.parents('.fields_list').attr('title');
+        if(title=='REL_GROUPS' || title=='COL_GROUPS' || title=='ROW_GROUPS'){
+             ui.item.find('span').removeClass('sprite').addClass('sort').addClass('asc');
+        }else if(title=='MEASURES'){
+             ui.item.find('span').removeClass('sprite').addClass('sort').addClass('none');
+        }
+        else{
+            ui.item.find('span').removeClass('sort').addClass('sprite');
+        }        
 
         // Prevent workspace from getting this event
        agent = jQuery.browser;
@@ -182,6 +203,7 @@ var WorkspaceDropZone = Backbone.View.extend({
 
         return false;
     },
+    
     
     remove_dimension: function(event, ui) {
         // Reenable original element
@@ -200,31 +222,21 @@ var WorkspaceDropZone = Backbone.View.extend({
                 .css({fontWeight: "normal"});
         }
         
-        // Notify server
         var target = '';
         var dimension = original_href.replace('#', '');
         $target_el = ui.draggable.parent().parent('div.fields_list_body');
 
-        if ($target_el.hasClass('columns')) target = "COLUMNS";
-        if ($target_el.hasClass('group')) target = "GROUP";
-        if ($target_el.hasClass('filter')) target = "FILTER";
+        if ($target_el.hasClass('measures')) target = "MEASURES";
+        if ($target_el.hasClass('relgroups')) target = "REL_GROUPS";
+        if ($target_el.hasClass('colgroups')) target = "COL_GROUPS";
+        if ($target_el.hasClass('rowgroups')) target = "ROW_GROUPS";
+        if ($target_el.hasClass('filters')) target = "FILTERS";
         
        var index = $target_el.find('li.ui-draggable').index(
                 $target_el.find('a[href="#' + dimension + '"]').parent() );
         
-        var url = "/" + target + "/" + dimension + "/POSITION/" + index;
-        
-        var self = this;
-        
-        this.workspace.query.action.del(url, {
-            success: //function(){this.workspace.query.run()}
-           
-            function(){
-            	self.workspace.query.page=null; 
-            	self.workspace.query.run();}
-        
-        });
-        
+        this.workspace.query.remove_dimension(target, index);
+
         // Remove element
         ui.draggable.addClass('deleted').remove();
         
@@ -240,27 +252,13 @@ var WorkspaceDropZone = Backbone.View.extend({
         return false;
     },
     
+
     sort: function(event, ui) {
-
-        var $target = $(event.target).parent().find('.dimension');
-            
-        var key = $target.attr('href').replace('#', '');
-        
-        var $li = $target.parent('.ui-draggable');
-        var index = $li.parent('.connectable').children().index($li);
-
-        if ($li.parent('.connectable').parent().hasClass('columns')) target = "COLUMNS";
-        if ($li.parent('.connectable').parent().hasClass('group')) target = "GROUP";
 
  		$(event.target).cycleClass(["none","asc","desc"]);
 
 		this.workspace.query.run();
-		/*
- 		this.workspace.query.action.post("/" + target + "/" + key + "/POSITION/" + index + "/SORT/" + order , { 
-            success: this.workspace.query.run
-        });
-		*/
-    
+ 
     },
     
     selections: function(event, ui) {
@@ -274,6 +272,9 @@ var WorkspaceDropZone = Backbone.View.extend({
         var $li = $target.parent('.ui-draggable');
         var index = $li.parent('.connectable').children().index($li);
  
+
+        //TODO:
+
         if($target.parents('.fields_list').attr('title')=='COLUMNS')
 		{
 

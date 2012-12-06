@@ -124,7 +124,7 @@ var Query;
 		return removedSelection[0];
 	},
 
-	addSort : function(order) {
+	addSort : function(order,index) {
 
 		/*
 		direction: SortType.ASC,
@@ -140,7 +140,11 @@ var Query;
     		}
     	}
 
-		this.config.mql.orders.push.push(order);
+		//if (typeof (index) ==="undefined") {
+			this.config.mql.orders.push(order);
+		//}else{
+			
+		//}
 	},
 
 	getSort: function(index){

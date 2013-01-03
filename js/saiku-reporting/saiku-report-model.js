@@ -83,14 +83,20 @@ var ElementFormat;
 saiku.report.ElementFormat = ElementFormat;
 
 var FieldDefinition;
- (FieldDefinition = function(config) {config = config || {}; var p; for (p in config) {this[p] = config[p]}; }).prototype =  
+ (FieldDefinition = function(config) {
+ 	config = config || {}; 
+ 	var p; 
+ 	for (p in config) {
+ 		this[p] = config[p]; 
+ 	}
+ }).prototype =  
 {
 	fieldId : null,
 	fieldName : null,
 	fieldDescription : null,
 	dataFormat : null,
 	nullString : null,
-	headerFormat :   new ElementFormat(),
+	headerFormat :  new ElementFormat(),
 	elementFormats: {},
 	aggregationFunction : AggregationFunction.SUM, //for the summary, the row aggregation needs to be in the querymodel
 	formula: null,
@@ -173,7 +179,9 @@ var ReportSpecification;
 		var uid = {
 			id 	: 		parts[0],
 			type: 		parts[1],
-			index: 		parts[2]
+			index: 		parts[2],
+			subtype1: 	parts[3],
+			subtype2: 	parts[4]
 			};
 				
 		return uid;
@@ -236,8 +244,8 @@ var ReportSpecification;
 			case "rft":
 				return this.reportFooters[uid.index]['format']; 
 				break;
-			case "ghd":
-				return this.groupDefinitions[uid.index]['headerFormat'];
+			case "ghd": //relational group header
+				return this.groupDefinitions[uid.index]['headerFormats'][uid.subtype1];
 				break;
 			case "gft":
 				return this.groupDefinitions[uid.index]['footerFormat'];
@@ -246,7 +254,8 @@ var ReportSpecification;
 				return this.fieldDefinitions[uid.index]['headerFormat'];
 				break;
 			case "dtl":
-				return this.fieldDefinitions[uid.index]['elementFormats']['*']['*'];
+				return this.fieldDefinitions[uid.index]['elementFormats'][uid.subtype1][uid.subtype2];
+				//return this.fieldDefinitions[uid.index]['elementFormats']['*']['*'];
 				break;				
 		}
 				
@@ -274,7 +283,7 @@ var ReportSpecification;
 				return this.reportFooters[uid.index]['value']; 
 				break;
 			case "ghd":
-				//return this.groupDefinitions[uid.index]['headerFormat'];
+				return this.groupDefinitions[uid.index]['headerFormats'][uid.subtype1];
 				break;
 			case "dth":
 				return this.fieldDefinitions[uid.index]['fieldName'];
@@ -302,9 +311,9 @@ var ReportSpecification;
 			case "rft":
 			path = ["reportFooters",uid.index,"value"];
 			break;
-			//case "ghd":
-			//path = ["groupDefinitions",uid.index,"headerFormat"];
-			//break;
+			case "ghd":
+			path = ["groupDefinitions",uid.index,"headerFormats"][uid.subtype1];
+			break;
 			case "dth":
 			path = ["fieldDefinitions",uid.index,"fieldName"];
 			break;			
@@ -334,7 +343,7 @@ var ReportSpecification;
 			path = ["reportFooters",uid.index,"format",property];
 			break;
 			case "ghd":
-			path = ["groupDefinitions",uid.index,"headerFormat",property];
+			path = ["groupDefinitions",uid.index,"headerFormats",uid.subtype1,property];
 			break;
 			case "gft":
 			path = ["groupDefinitions",uid.index,"footerFormat",property];
@@ -343,7 +352,7 @@ var ReportSpecification;
 			path = ["fieldDefinitions",uid.index,"headerFormat",property];
 			break;
 			case "dtl":
-			path = ["fieldDefinitions",uid.index,"elementFormats","*","*",property];
+			path = ["fieldDefinitions",uid.index,"elementFormats",uid.subtype1,uid.subtype2,property];	
 			break;				
 		}
 

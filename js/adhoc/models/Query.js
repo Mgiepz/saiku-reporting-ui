@@ -172,7 +172,9 @@ var Query = Backbone.Model.extend({
 				fieldId: mc.id, 
 				fieldName: mc.name, 
 				fieldDescription: mc.description,
-			});
+			aggregationFunction : "GROUPSUM"
+		}
+				);
 
 			if(indexFrom)
 			{

@@ -275,7 +275,7 @@ var WorkspaceDropZone = Backbone.View.extend({
 
         //TODO:
 
-        if($target.parents('.fields_list').attr('title')=='COLUMNS')
+        if($target.parents('.fields_list').attr('title')=='MEASURES')
 		{
 
         // Launch column config dialog

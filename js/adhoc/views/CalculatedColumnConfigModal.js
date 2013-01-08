@@ -21,44 +21,7 @@
 /**
  * Dialog for column configuration
  */
-var ColumnConfigModal = Modal.extend({
-    type: "columnconfig",
-    
-    buttons: [
-        { text: "Save", method: "save" },
-        { text: "Cancel", method: "close" }
-    ],
-    
-    events: {
-        'click a': 'call' 
-    },
-    
-	changed: function(evt) {
-		var target = $(evt.currentTarget);
-  
-    },    
-    
-    initialize: function(args) {
-        // Initialize properties
-        _.extend(this, args);
-        this.options.title = "Setup Column " + this.name;
-        this.message = "Fetching config...";
-        this.show_unique = false;
-        this.query = args.workspace.query;
-        _.bindAll(this, "populate", "finished", "changed", "add_calculated_column","error");
-          
-        // Resize when rendered
-        this.bind('open', this.post_render);
-        this.render();
-        
-      	this.category = args.key.split('/')[1];
-        this.column = args.key.split('/')[3];
-        this.index = args.index;
-
-      	this.populate();
-
-
-    },
+var CalculatedColumnConfigModal = ColumnConfigModal.extend({
 
     populate: function() {
 
@@ -117,11 +80,7 @@ var ColumnConfigModal = Modal.extend({
       Application.ui.unblock();
      		
     },
-    
-    post_render: function(args) {
-    	this.center();
-    },
-    
+ 
     save: function() {
 
     	this.columnDefinition.fieldName = $(this.el).find('#displayname input').val();
@@ -151,14 +110,7 @@ var ColumnConfigModal = Modal.extend({
 
         return true;
     },
-    
-    error: function(){
-    	$(this.el).find('.dialog_body').children().show();
-        this.loading.remove();
-    	$(this.el).find('#formula .formula').css('border', '1px solid red');
-    	console.log('wrong');
-    },
-    
+
     add_calculated_column: function(){
 
       //calculated column auch im modell hinzufügen
@@ -181,10 +133,6 @@ var ColumnConfigModal = Modal.extend({
             .attr("href",href);
  
             $clone.appendTo($selections);		 	
-   },
-    
-    finished: function(response) {
-        $(this.el).dialog('destroy').remove();
-        this.query.run();
-    }
+   }
+   
 });

@@ -82,27 +82,14 @@ var WorkspaceToolbar = Backbone.View.extend({
     
 
 	changed_rowlimit: function(event){
-		
-		var that = this;
-		
-		this.workspace.query.action.get("/ROWLIMIT/" + $(event.target).val() , { 
-            success: function(){
-            	that.workspace.query.page=null;
-            	that.workspace.query.run(true);
-            }
-        });
+        this.workspace.metadataQuery.config.mql.options.limit = $(event.target).val();
+        this.workspace.query.run(true);
 	},
 
 	changed_distinct: function(event){
-		
-		var that = this;
-		
-		this.workspace.query.action.get("/DISTINCT/" + $(event.target).is(':checked') , { 
-            success: function(){
-            	that.workspace.query.page=null;
-            	that.workspace.query.run(true);
-            }
-        });
+        //that.workspace.query.page=null; <- need to do something like that?
+		this.workspace.metadataQuery.config.mql.options.disable_distinct = $(event.target).is(':checked').toString();
+        this.workspace.query.run(true);
 	},
 
 
@@ -196,16 +183,13 @@ var WorkspaceToolbar = Backbone.View.extend({
    calculated_column: function(event) {
    	
    	     // Launch column config dialog
-        (new ColumnConfigModal({
-            //target: $target,
+        (new CalculatedColumnConfigModal({
             index: -1,
             name: 'calculated',
             key: 'CATEGORY/CALCULATED/COLUMN/NEW',
             workspace: this.workspace
         })).open();
 
-   		//this.workspace.query.add_calculated_column();
-        //alert("Calculated Columns are not yet implemented, sorry!");
     },    
  
     export_xls: function(event) {
@@ -219,8 +203,14 @@ var WorkspaceToolbar = Backbone.View.extend({
     },
 
     export_pdf: function(event) {
-        window.location.href = Settings.REST_URL +
-            "/export/" + this.workspace.query.uuid + "/pdf";
+        var data = encodeURI(JSON.stringify(this.workspace.reportSpec));
+        var inputs ='<input type="hidden" name="json" value="'+ data +'" accept-charset="utf-8"/>'; 
+        var url = Settings.REST_URL + "/generator/pdf";
+
+        $('<form action="'+ url +'" method="post" target="_new" class="hidden">'+inputs+'</form>')
+        .appendTo('body').submit().remove();
+
+        //$.download(Settings.REST_URL + "/generator/pdf", JSON.stringify(this.workspace.reportSpec));
     },
     
     export_cda: function(event) {

@@ -224,10 +224,16 @@ var ReportSpecification;
 	},
 	
 	addColumn : function(field, position) {
-		console.log("adding column " + field.fieldId + " at index " + position);
 		var array = this.hasOwnProperty("fieldDefinitions") ?
-            this["fieldDefinitions"] : this["fieldDefinitions"] = [];
-        array.splice(position, 0, field);
+        this["fieldDefinitions"] : this["fieldDefinitions"] = [];
+
+		if(position===undefined){
+			console.log("pushing column " + field.fieldId);
+			array.push(field);
+		}else{
+			console.log("adding column " + field.fieldId + " at index " + position);
+        	array.splice(position, 0, field);
+    	}
 	},	
 	
 	removeColumn : function(position) {

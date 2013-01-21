@@ -1,6 +1,6 @@
 /*
  * Query.js
- * 
+ *
  * Copyright (c) 2011, Marius Giepz, OSBI Ltd. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or
@@ -22,258 +22,277 @@
  * Workspace query
  */
 var Query = Backbone.Model.extend({
-    initialize: function(args, options) {
-    	
-    	_.extend(this, options);
-        
-        // Bind `this`
-        _.bindAll(this, "run", "move_dimension", "reflect_properties","build_sorts");
-        
-        // Generate a unique query id
-        this.uuid = 'xxxxxxxx-xxxx-xxxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, 
-            function (c) {
-                var r = Math.random() * 16 | 0,
-                v = c == 'x' ? r : (r & 0x3 | 0x8);
-                return v.toString(16);
-            }).toUpperCase();
-            
-            
-        this.reportPerspective = true;
+	initialize: function(args, options) {
 
-        this.action = new QueryAction({}, { query: this });
-        this.result = new Result({}, { query: this });
-        this.selectedModel = Application.session.mdModels[this.attributes.domainId + "/" + this.attributes.modelId];
+		_.extend(this, options);
 
-        this.reportresult = new ReportResult({}, { query: this });
-        this.inplace = new InplaceEdit({}, { query: this });
+		// Bind `this`
+		_.bindAll(this, "run", "move_dimension", "reflect_properties", "build_sorts");
 
-    },
-    
-    parse: function(response) {
+		// Generate a unique query id
+		this.uuid = 'xxxxxxxx-xxxx-xxxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+			var r = Math.random() * 16 | 0,
+				v = c == 'x' ? r : (r & 0x3 | 0x8);
+			return v.toString(16);
+		}).toUpperCase();
 
-    	 // Fetch initial properties from server
-        if (! this.properties) {
-            this.properties = new Properties({}, { query: this });
-        } else {
-            this.properties.fetch({
-                success: this.reflect_properties
-            });
-        }
-       
-    },
-    
-    reflect_properties: function() {
-        this.workspace.trigger('properties:loaded');
-    },
 
-    build_sorts: function($items){
+		this.reportPerspective = true;
+
+		this.action = new QueryAction({}, {
+			query: this
+		});
+		this.result = new Result({}, {
+			query: this
+		});
+		this.selectedModel = Application.session.mdModels[this.attributes.domainId + "/" + this.attributes.modelId];
+
+		this.reportresult = new ReportResult({}, {
+			query: this
+		});
+		this.inplace = new InplaceEdit({}, {
+			query: this
+		});
+
+	},
+
+	parse: function(response) {
+
+		// Fetch initial properties from server
+		if(!this.properties) {
+			this.properties = new Properties({}, {
+				query: this
+			});
+		} else {
+			this.properties.fetch({
+				success: this.reflect_properties
+			});
+		}
+
+	},
+
+	reflect_properties: function() {
+		this.workspace.trigger('properties:loaded');
+	},
+
+	build_sorts: function($items) {
 		var that = this;
 
-    	$items.each(
-			function(){
-				var fieldInfo = $(this).find('.dimension').attr('href').split('/');
-				var categoryId = fieldInfo[1];
-				var columnId = fieldInfo[3]
+		$items.each(
 
-				var $span = $(this).find('span.sort');
-				if($span.length !== 0){
-					if($span.hasClass('asc')){
-						var sort =  {view_id:categoryId, column_id:columnId, direction: SortType.ASC};
-						that.workspace.metadataQuery.config.mql.orders.push(sort);
-					}else if($span.hasClass('desc')){
-						var sort =  {view_id:categoryId, column_id:columnId, direction: SortType.DESC};
-						that.workspace.metadataQuery.config.mql.orders.push(sort);
-					}
+		function() {
+			var fieldInfo = $(this).find('.dimension').attr('href').split('/');
+			var categoryId = fieldInfo[1];
+			var columnId = fieldInfo[3]
+
+			var $span = $(this).find('span.sort');
+			if($span.length !== 0) {
+				if($span.hasClass('asc')) {
+					var sort = {
+						view_id: categoryId,
+						column_id: columnId,
+						direction: SortType.ASC
+					};
+					that.workspace.metadataQuery.config.mql.orders.push(sort);
+				} else if($span.hasClass('desc')) {
+					var sort = {
+						view_id: categoryId,
+						column_id: columnId,
+						direction: SortType.DESC
+					};
+					that.workspace.metadataQuery.config.mql.orders.push(sort);
 				}
+			}
 		});
-    },
+	},
 
-    run: function(force) {
+	run: function(force) {
 
-    	var that = this;
- 
+		var that = this;
+
 		//Rebuild sorting:
 		this.workspace.metadataQuery.config.mql.orders = [];
 
-		var $measures  = $(this.workspace.el).find('.measures ul li.d_dimension'); 
-		var $relgroups = $(this.workspace.el).find('.relgroups ul li.d_dimension'); 		
-		var $colgroups = $(this.workspace.el).find('.colgroups ul li.d_dimension'); 
-		var $rowgroups = $(this.workspace.el).find('.rowgroups ul li.d_dimension'); 
+		var $measures = $(this.workspace.el).find('.measures ul li.d_dimension');
+		var $relgroups = $(this.workspace.el).find('.relgroups ul li.d_dimension');
+		var $colgroups = $(this.workspace.el).find('.colgroups ul li.d_dimension');
+		var $rowgroups = $(this.workspace.el).find('.rowgroups ul li.d_dimension');
 
-		if(Settings.MODE==='crosstab'){
-				this.build_sorts($rowgroups);
-				this.build_sorts($colgroups);
-				this.build_sorts($measures);
-		}else{
-				this.build_sorts($relgroups);
-				this.build_sorts($measures);
+		if(Settings.MODE === 'crosstab') {
+			this.build_sorts($rowgroups);
+			this.build_sorts($colgroups);
+			this.build_sorts($measures);
+		} else {
+			this.build_sorts($relgroups);
+			this.build_sorts($measures);
 		}
 
-		if ($measures.size() == 0) {
+		if($measures.size() == 0) {
 			var message = '<tr><td><span class="i18n">You need to select at least one (non-calculated) Column for a valid query.</td></tr>';
-            $(this.workspace.el).find('.report_inner')
-                .html(message);
-            $(this.workspace.el).find('.workspace_results div')
-                .html(message);   
-            return;
-        }
-	
+			$(this.workspace.el).find('.report_inner').html(message);
+			$(this.workspace.el).find('.workspace_results div').html(message);
+			return;
+		}
+
 		var mqlQueryString = this.workspace.metadataQuery.toXml();
 
-		this.workspace.reportSpec.dataSource = new saiku.report.Datasource({id: "master" , type: DatasourceType.CDA,  properties: {queryString:mqlQueryString}});
-
-		
-
-				if(!that.reportPerspective){
-					Application.ui.block("Rendering Table");
-					that.result.fetch( {error: 
-						function(model, response){
-							that.error = new ClientError({ query: self, message: response.responseText});
-							that.workspace.reset_canvas();
-							that.workspace.trigger('FSM:ETableError');			
-							Application.ui.unblock();
-						}});
-				}else{
-					Application.ui.block("Rendering Report");
-					that.reportresult.fetch({error: 
-						function(model, response){
-							that.error = new ClientError({ query: self, message: response.responseText});
-							that.workspace.reset_canvas();
-							that.workspace.trigger('FSM:EReportError');
-							Application.ui.unblock();
-						}
-					});		
-				}
-   },
-    
-   move_dimension: function(dimension, $target_el, indexFrom, index) {
-   	$(this.workspace.el).find('.run').removeClass('disabled_toolbar');
-
-   	var target = '';
-   	if ($target_el.hasClass('measures')) target = "MEASURES";
-   	if ($target_el.hasClass('relgroups')) target = "REL_GROUPS";
-   	if ($target_el.hasClass('colgroups')) target = "COL_GROUPS";
-   	if ($target_el.hasClass('rowgroups')) target = "ROW_GROUPS";
-   	if ($target_el.hasClass('filters')) target = "FILTERS";
-
-	//dirty
-	var fieldInfo = dimension.split('/');
-	var categoryId = fieldInfo[1];
-	var columnId = fieldInfo[3]
-	var mc = this.selectedModel.getColumnById(categoryId,columnId);
-
-	var selection = {table:categoryId, column:columnId, aggregation: mc.defaultAggType};
-//	var sort =  {view_id:categoryId, column_id:columnId};
-
-	if(Settings.MODE==='crosstab'){
-		switch(target){
-			case "MEASURES":
-			var field = new saiku.report.FieldDefinition({
-				fieldId: mc.id, 
-				fieldName: mc.name, 
-				fieldDescription: mc.description,
-			aggregationFunction : "GROUPSUM"
-		}
-				);
-
-			if(indexFrom)
-			{
-				field = this.workspace.reportSpec.removeColumn(indexFrom);
-			}	
-			this.workspace.reportSpec.addColumn(field, index);
-			this.workspace.metadataQuery.addSelection(selection);
-			break;
-
-			case "ROW_GROUPS":
-			var group = new saiku.report.GroupDefinition({
-				fieldId: mc.id, 
-				groupName: mc.id, 
-				type: GroupType.CT_ROW,
-				displayName: mc.name,
-				printSummary: true}
-				);	
-
-			if(indexFrom)
-			{
-				group = this.workspace.reportSpec.removeGroup(indexFrom);
-			}	
-			this.workspace.reportSpec.addGroup(group, index);
-			this.workspace.metadataQuery.addSelection(selection);
-			//this.workspace.metadataQuery.addSort(sort,index);
-			break;
-
-			case "COL_GROUPS":
-			var group = new saiku.report.GroupDefinition({
-				fieldId: mc.id, 
-				groupName: mc.id, 
-				type: GroupType.CT_COLUMN,
-				displayName: mc.name,
-				printSummary: true}
-				);	
-
-			if(indexFrom)
-			{
-				group = this.workspace.reportSpec.removeGroup(indexFrom);
-			}	
-			this.workspace.reportSpec.addGroup(group, index);
-			this.workspace.metadataQuery.addSelection(selection);
-//			this.workspace.metadataQuery.addSort(sort,index);
-			break;
+		this.workspace.reportSpec.dataSource = new saiku.report.Datasource({
+			id: "master",
+			type: DatasourceType.CDA,
+			properties: {
+				queryString: mqlQueryString
 			}
+		});
+
+		if(!that.reportPerspective) {
+			Application.ui.block("Rendering Table");
+			that.result.fetch({
+				error: function(model, response) {
+					that.error = new ClientError({
+						query: self,
+						message: response.responseText
+					});
+					that.workspace.reset_canvas();
+					that.workspace.trigger('FSM:ETableError');
+					Application.ui.unblock();
+				}
+			});
+		} else {
+			Application.ui.block("Rendering Report");
+			that.reportresult.fetch({
+				error: function(model, response) {
+					that.error = new ClientError({
+						query: self,
+						message: response.responseText
+					});
+					that.workspace.reset_canvas();
+					that.workspace.trigger('FSM:EReportError');
+					Application.ui.unblock();
+				}
+			});
 		}
-		else{
-			switch(target){
-				case "MEASURES":
-				var field = new saiku.report.FieldDefinition({fieldId: mc.id, fieldName: mc.name, fieldDescription: mc.description});
-				if(indexFrom)
-				{
+	},
+
+	move_dimension: function(dimension, $target_el, indexFrom, index) {
+
+		$(this.workspace.el).find('.run').removeClass('disabled_toolbar');
+
+		var target = '';
+		if($target_el.hasClass('measures')) target = "MEASURES";
+		if($target_el.hasClass('relgroups')) target = "REL_GROUPS";
+		if($target_el.hasClass('colgroups')) target = "COL_GROUPS";
+		if($target_el.hasClass('rowgroups')) target = "ROW_GROUPS";
+		if($target_el.hasClass('filters')) target = "FILTERS";
+
+		var fieldInfo = dimension.split('/');
+		var categoryId = fieldInfo[1];
+		var columnId = fieldInfo[3];
+
+		var mc = this.selectedModel.getColumnById(categoryId,columnId);
+
+		var selection = {
+			table: mc.category,
+			column: mc.id,
+			aggregation: mc.defaultAggType
+		};
+
+			switch(target) {
+			case "MEASURES":
+				var agg = "SUM";
+				if(Settings.MODE === 'crosstab') agg = "GROUPSUM";
+				var field = new saiku.report.FieldDefinition({
+					fieldId: mc.id,
+					fieldName: mc.name,
+					fieldDescription: mc.description,
+					aggregationFunction: agg
+				});
+
+				if(indexFrom) {
 					field = this.workspace.reportSpec.removeColumn(indexFrom);
-				}	
+				}
 				this.workspace.reportSpec.addColumn(field, index);
 				this.workspace.metadataQuery.addSelection(selection);
 				break;
-				case "REL_GROUPS":
+
+			case "ROW_GROUPS":
 				var group = new saiku.report.GroupDefinition({
-				fieldId: mc.id, 
-				groupName: mc.id, 
-				type: GroupType.RELATIONAL,
-				displayName: mc.name,
-				printSummary: true}
-				);				
-				if(indexFrom)
-				{
+					fieldId: mc.id,
+					groupName: mc.id,
+					type: GroupType.CT_ROW,
+					displayName: mc.name,
+					printSummary: true
+				});
+
+				if(indexFrom) {
 					group = this.workspace.reportSpec.removeGroup(indexFrom);
-				}	
+				}
 				this.workspace.reportSpec.addGroup(group, index);
 				this.workspace.metadataQuery.addSelection(selection);
 				break;
-				case "FILTERS":
-				//var field = new saiku.report.DataField({fieldId: fieldId});		
-				//break;
-			}	
-		}
 
+			case "COL_GROUPS":
+				var group = new saiku.report.GroupDefinition({
+					fieldId: mc.id,
+					groupName: mc.id,
+					type: GroupType.CT_COLUMN,
+					displayName: mc.name,
+					printSummary: true
+				});
+
+				if(indexFrom) {
+					group = this.workspace.reportSpec.removeGroup(indexFrom);
+				}
+				this.workspace.reportSpec.addGroup(group, index);
+				this.workspace.metadataQuery.addSelection(selection);
+				break;
+
+			case "FILTERS":
+				console.log("adding Filter");
+
+				this.workspace.metadataQuery.addConstraint({},index);
+
+				var filterModel = {
+					index: index,
+		        	operatorType: OperatorType.AND, 
+		        	columnMeta: mc,
+		        	values: null,
+		        	conditionType: ConditionType.EQUAL,
+		        	aggType: AggregationFunction.NONE,
+		        	parameter: null
+				};
+
+		        (new SimpleFilterDialog({
+		                    filterModel: filterModel,
+		                    workspace: this.workspace
+		                })).open();
+
+		        return false;
+
+		}
 
 		this.run();
 
 	},
 
-    remove_dimension: function(target, indexFrom){
-    	switch(target){
-			case "MEASURES":
-				this.workspace.reportSpec.removeColumn(indexFrom);
-				this.workspace.metadataQuery.removeSelection(indexFrom);
-				break;
-			case "FILTERS":
-				//var field = new saiku.report.DataField({fieldId: fieldId});		
-				//break;
-			default:
-				this.workspace.reportSpec.removeGroup(indexFrom);	
+	remove_dimension: function(target, indexFrom) {
+		switch(target) {
+		case "MEASURES":
+			this.workspace.reportSpec.removeColumn(indexFrom);
+			this.workspace.metadataQuery.removeSelection(indexFrom);
+			break;
+		case "FILTERS":
+			this.workspace.metadataQuery.removeConstraint(indexFrom);
+			//Remove the filter from mql-conditions using index;
+			//If mql contains a param, also remove that param from mql
+			//Remove the param from the reportmodel
+			//If the param has a query, remove that query from datasource
+		default:
+			this.workspace.reportSpec.removeGroup(indexFrom);
 		}
 		this.run();
-    },
-    
-    url: function() {
-        return encodeURI(Settings.REST_URL + "/query/" + this.uuid);
-    }
+	},
+
+	url: function() {
+		return encodeURI(Settings.REST_URL + "/query/" + this.uuid);
+	}
 });

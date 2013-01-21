@@ -69,7 +69,10 @@
         <script type="text/javascript" src="js/jquery/Colsize.js"></script>
         <script type="text/javascript" src="js/jquery/jQuery.download.js"></script>
 		<script type="text/javascript" src="js/jquery/jqueryFileTree.js"></script>
-		
+
+<script type="text/javascript" src="js/jquery/json2.js"></script>		
+<script type="text/javascript" src="js/jquery/condition-builder.js"></script>
+
 		<script src="js/backbone/backbone.js"></script>
 
 		<script src="js/saiku-reporting/saiku-report-model.js"></script>
@@ -97,8 +100,14 @@
 		<script src="js/adhoc/views/ClientError.js"></script>
 		<script src="js/adhoc/views/ExportFileModal.js"></script>
 		<script src="js/adhoc/views/ExportPrptModal.js"></script>
-		<script src="js/adhoc/views/SelectionsModal.js"></script>
+
+        <script src="js/adhoc/views/Filter.js"></script>        
+        <script src="js/adhoc/views/FilterController.js"></script>
+		<script src="js/adhoc/views/SimpleFilterDialog.js"></script>
+        <script src="js/adhoc/views/SelectionsModal.js"></script>
+
 		<script src="js/adhoc/views/ColumnConfigModal.js"></script>
+        <script src="js/adhoc/views/CalculatedColumnConfigModal.js"></script>
 		<script src="js/adhoc/views/TemplatesModal.js"></script>
 		<script src="js/adhoc/views/Report.js"></script>
 		<script src="js/adhoc/views/MdModelList.js"></script>
@@ -262,10 +271,10 @@
             <li class="seperator"><a href="#calculated_column" 
                 class="i18n formula button  sprite" 
                 title="Add Calculated Column"></a></li>
-            <!--li><a href="#add_union" 
+            <li><a href="#add_union" 
                 class="i18n union button sprite" 
                 title="Add Union"></a></li>
-            <li><a href="#add_join" 
+            <!--li><a href="#add_join" 
                 class="i18n join button  sprite" 
                 title="Add Join"></a></li-->
             <li class="seperator"><a href="#export_xls" 
@@ -280,12 +289,12 @@
             <!--li><a href="#export_csv" 
                 class="i18n xls_form button sprite" 
                 title="Excel Forms"></a></li-->
-            <li><a href="#export_prpt" 
+            <!--li><a href="#export_prpt" 
                 class="i18n prpt button sprite" 
                 title="Export PRPT"></a></li>
             <li><a href="#export_cda" 
                 class="i18n cda button sprite" 
-                title="Export CDA"></a></li>
+                title="Export CDA"></a></li-->
             <li class="seperator">
 			<div class="rowlimit">			
 					Row Limit<select style="margin: 0px; margin-left: 10px">

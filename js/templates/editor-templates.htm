@@ -4,6 +4,58 @@
 		</div>
 </script>
 
+<script type="text/template" id="template-filter-row">
+    <div class=".filterrow">
+        <img src="images/src/delete.png" alt="Remove" class="remove" />
+        <select class="agg">
+            <option value="NONE"></option>
+            <% _.each(availableAggTypes, function(aggType) { %>
+            <option value="<%= aggType %>"><%= AggTypes[aggType] %></option>
+            <% }); %>
+        </select>
+        <div class="col"></div>
+        <select class="op">
+            <% _.each(availableComparators, function(comparator) { %>
+            <option value="<%= comparator %>"><%= comparator %></option>
+            <% }); %>
+        </select>
+        <input name="value" type="text" class="value"/>
+    </div>
+</script>
+
+<script type="text/template" id="template-filter-dialog">
+    <ul id="selectionTab">
+        <li class="filter_selection selected">
+            <a href="#switch_multiselect">select values</a>
+        </li>
+        <li class="filter_expression">
+             <a href="#switch_expression">build expression</a>
+        </li>
+     </ul> 
+     <hr id="separatorline">
+    <div class="simple_filter_row">
+    </div>
+    <div class="select_from_list">
+        <div class="available_selections">
+            <label for="filter_selections">Search: &nbsp;</label><input name="filter_selections" id="filter_selections" type="text" class="filterbox" /> <br />
+            Available values:<br/>
+            <select multiple disabled>
+            </select>
+        </div>
+        <div class="selection_buttons">
+            <a class="form_button" href="#move_selection" id="add_members">&nbsp;&gt;&nbsp;</a><br><br>
+            <a class="form_button" href="#move_selection" id="add_all_members">&gt;&gt;</a><br><br>
+            <a class="form_button" href="#move_selection" id="remove_all_members">&lt;&lt;</a><br><br>
+            <a class="form_button" href="#move_selection" id="remove_members">&nbsp;&lt;&nbsp;</a>
+        </div>
+        <div class="used_selections">
+            Selected values:<br/>
+            <select multiple disabled></select>
+        </div>
+    </div>
+</script>
+
+
 <script type="text/x-jquery-tmpl" id="format-editor">
 		    <div id="pager" class="pager">
 		<ul>

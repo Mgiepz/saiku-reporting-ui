@@ -254,24 +254,15 @@ Phomp.jsonToMql = function(json) {
 };
 
 Phomp.mqlToJs = function(mql) {
-  //         1             2345             6           7          8910            11             12   13          14  15                   16
-  var re = /(<!\[CDATA\[)|<(((([\w\-\.]+):)?([\w\-\.]+))([^>]+)?|\/((([\w\-\.]+):)?([\w\-\.]+))|\?(\w+)([^\?]+)?\?|(!--([^\-]|-[^\-])*--))>|([^<>]+)/ig;
+  //         1234             5           6          789             10             11   12          13  14                 15         1617    18                   19
+  var re = /<(((([\w\-\.]+):)?([\w\-\.]+))([^>]+)?|\/((([\w\-\.]+):)?([\w\-\.]+))|\?(\w+)([^\?]+)?\?|(!--([^\-]|-[^\-])*--)|(!\[CDATA\[(([^\]]+(\][^\]])?)+)\]\]))>|([^<>]+)/ig;
   var match, value, atts;
   var pop, push, stack = [];
   var root = {}, obj, pObj = root, member;
 
   while (match = re.exec(mql)) {
     //we have an element start tag
-    if (match[1]) {
-      var from = match.index + "<![CDATA[".length;
-      var delim = "]]>";
-      var i = mql.indexOf(delim, from);
-      //grab the text, add that as value
-      pObj._value = mql.substring(from, i);
-      re.lastIndex = i + delim.length;
-    }
-    else
-    if (value = match[6]) {
+    if (value = match[5]) {
       push = true;
       //make a new object to represent this element
       obj = {};
@@ -297,7 +288,7 @@ Phomp.mqlToJs = function(mql) {
       }
 
       //do we have "stuff" beyond the tagname?
-      if (atts = match[7]) {
+      if (atts = match[6]) {
         //check if this element is self-closing
         if (atts.length && atts.substr(atts.length - 1, 1) === "\/") {
           //it is. remove the trailing "/" character
@@ -329,7 +320,7 @@ Phomp.mqlToJs = function(mql) {
     }
     else
     //element end tag
-    if (value = match[11]) {
+    if (value = match[10]) {
       //get the last item from the stack
       pop = stack.pop();
       //check if tagname matches the current item.
@@ -368,19 +359,24 @@ Phomp.mqlToJs = function(mql) {
       delete pop._type;
     }
     else
-    if (value = match[12]) {                              //processing instruction
+    if (value = match[11]) {                              //processing instruction
       //ignore
       //typically we only get this for the xml declaration
     }
     else
-    if (value = match[14]) {                              //comment
+    if (value = match[13]) {                              //comment
       //ignore
       //comments are stripped
     }
     else
-    if ((value = match[16]) && (!/^\s+$/.test(value))) {  //text (but not whitespace)
+    if (value = match[15]) {                              //cdata
       //grab the text, add that as value
       pObj._value = match[16];
+    }
+    else
+    if ((value = match[19]) && (!/^\s+$/.test(value))) {  //text (but not whitespace)
+      //grab the text, add that as value
+      pObj._value = match[19];
     }
   }
   return root;

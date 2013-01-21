@@ -79,11 +79,6 @@ var ColumnConfigModal = Modal.extend({
      	$(this.el).find('.dialog_body').html(template);
      	
      	$(this.el).find('#description').html(this.columnDefinition.fieldDescription);
-     	
-     	//formula element needs to be made visible
-     	if(this.category == 'CALCULATED'){
-     		$(this.el).find('#formula').removeClass('hide').find('.formula').val(this.columnDefinition.formula);
-     	}
 
      	$(this.el).find('#displayname input').val(this.columnDefinition.fieldName);
      	
@@ -158,33 +153,13 @@ var ColumnConfigModal = Modal.extend({
     	$(this.el).find('#formula .formula').css('border', '1px solid red');
     	console.log('wrong');
     },
-    
-    add_calculated_column: function(){
-
-      //calculated column auch im modell hinzufügen
-    	
-    	var $selections = $(this.workspace.el).find('.columns ul');
-	 	
-		  var $logicalColumn = $('.category_tree')
-            .find('a[title="calc_column"]')
-            .parent();
-
-        var $clone = $logicalColumn.clone()
-            .addClass('d_measure')
-            .addClass('calculated')
-            .attr("id",this.json.uid)
-            .removeClass('hide');
-          
-            var href = '#CATEGORY/' + this.json.category + '/COLUMN/' + this.json.name;
-            
-            $clone.find('a[title="calc_column"]').attr("title",this.json.name).html(this.json.name)
-            .attr("href",href);
- 
-            $clone.appendTo($selections);		 	
-   },
-    
+  
     finished: function(response) {
         $(this.el).dialog('destroy').remove();
         this.query.run();
-    }
+    },
+
+    add_calculated_column: function(){
+        //do nothing
+    }  
 });

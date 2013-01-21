@@ -35,8 +35,6 @@
     padding-top: 8px;	
 }
 
-
-
 /*
  * Model Navigation Tree
  */
@@ -686,3 +684,128 @@ div.folderexplorer{
 .dialog_export .alertbox_standard label{
    width: 60px !important;
 }
+
+.filterrow {
+  height: 20px;
+}
+
+/*-------------------------------------
+*/
+
+.dialog_simpleFilterDialog {
+  min-width: 500px !important;
+}
+.dialog_simpleFilterDialog .dialog_icon {
+  display: none;
+}
+.dialog_simpleFilterDialog .dialog_body {
+    height: 500px;
+}
+.dialog_simpleFilterDialog .dialog_body .select_from_list .available_selections {
+    padding-left: 5px;
+    float: left;
+}
+.dialog_simpleFilterDialog .dialog_body .select_from_list .selection_buttons {
+    float: left;
+    padding-left: 25px;
+    padding-top: 115px;
+    text-align: center;
+    vertical-align: middle;
+}
+.dialog_simpleFilterDialog .dialog_body .select_from_list .used_selections {
+    padding-right: 5px;
+    padding-top: 36px;
+    float: right;
+}
+.dialog_simpleFilterDialog .dialog_body .select_from_list select {
+    height: 270px;
+    width: 350px;
+    font-size: 11px;
+    overflow: scroll;
+}
+.dialog_simpleFilterDialog .options {
+    float: left;
+    width: 250px;
+    text-align: left;
+}
+.dialog_simpleFilterDialog .available_selections .select_from_list input[type="text"] {
+    width: 200px;
+}
+
+.dialog_simpleFilterDialog .dialog_icon {
+  display: none;
+}
+
+.dialog_simpleFilterDialog .simple_filter_row .remove {
+  display: none;
+}
+
+.simple_filter_row select, .simple_filter_row input[type="text"] , .simple_filter_row .datepicker{
+      width: 150px;
+      height: 20px;
+      padding: 0; 
+      margin-left: 5px;
+      line-height: 20px;
+}
+
+.simple_filter_row .col{
+  height: 20px;
+  line-height: 20px;
+  margin-top: 5px;
+}
+
+.simple_filter_row select.op, .simple_filter_row .col, .simple_filter_row select.agg {
+      float: left;
+      margin-left: 5px;
+      width: 100px;
+    }
+   
+.simple_filter_row {
+  margin-bottom:10px;
+  padding-left: 50px;
+}
+
+
+hr#separatorline {
+  border: none;
+  border-top: 1px gray solid;
+}
+
+ul#selectionTab {
+      height: 30px;
+      width: 300px;
+      margin:10px auto 5px auto;
+      padding:0;
+        list-style: none;
+    }
+    
+    ul#selectionTab li {
+      list-style: none;
+      width: 150px;
+      display:block;
+      float:left;
+    }
+    
+    ul#selectionTab li a {
+      text-decoration: none;
+      font-weight: bold;
+      border-top: 5px solid #cccccc;
+      color: #cccccc;
+      padding-left:2px;
+      width: 138px;
+      height: 30px;
+      font-size:12px;
+      display: block;
+    }
+    
+    ul#selectionTab li a:hover {
+      border-top: 5px solid #aaaaaa;
+      text-decoration: none;
+      color:#aaaaaa;  
+    } 
+    
+    ul#selectionTab li.selected a  {
+      border-top: 5px solid #666666;
+      text-decoration: none;
+      color:#666666;      
+    }

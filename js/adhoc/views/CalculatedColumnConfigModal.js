@@ -21,86 +21,75 @@
 /**
  * Dialog for column configuration
  */
-var CalculatedColumnConfigModal = ColumnConfigModal.extend({
+ var CalculatedColumnConfigModal = ColumnConfigModal.extend({
 
     populate: function() {
 
-      this.columnDefinition = this.workspace.reportSpec.fieldDefinitions[this.index];
-      this.mqlSelection = this.workspace.metadataQuery.getSelection(this.index);
+        if(this.index==-1){
+            this.columnDefinition =  new saiku.report.FieldDefinition({
+                fieldId: "calcolumn", 
+                fieldName: "Calculated Column", 
+                fieldDescription: "Iam calculated",
+                formula: '"Test"'});
 
-      var domainId = this.workspace.query.attributes.domainId;
-      var modelId = this.workspace.query.attributes.modelId;
+        }else{
+            this.columnDefinition = this.workspace.reportSpec.fieldDefinitions[this.index];
+        }
+    
+      var template = _.template($("#template-column-setup").html())(this);
 
-      var model = Application.session.mdModels[domainId + "/" + modelId];
+      $(this.el).find('.dialog_body').html(template);
 
-      var metadataColumn = model.getColumnById(this.category,this.column);
-      var dataType = metadataColumn.type;
-      var aggTypes = metadataColumn.aggTypes;
+      $(this.el).find('#description').html(this.columnDefinition.fieldDescription);
 
-     	var template = _.template($("#template-column-setup").html())(this);
-	
-     	$(this.el).find('.dialog_body').html(template);
-     	
-     	$(this.el).find('#description').html(this.columnDefinition.fieldDescription);
-     	
-     	//formula element needs to be made visible
-     	if(this.category == 'CALCULATED'){
-     		$(this.el).find('#formula').removeClass('hide').find('.formula').val(this.columnDefinition.formula);
-     	}
+      $(this.el).find('#formula').removeClass('hide').find('.formula').val(this.columnDefinition.formula);
 
-     	$(this.el).find('#displayname input').val(this.columnDefinition.fieldName);
-     	
-     	$(this.el).find('#format input').val(this.columnDefinition.dataFormat);   	
-     	if(dataType=='NUMERIC'||dataType=='DATE'){
-     		$(this.el).find('#format input').removeAttr('disabled');
-     	}
+      $(this.el).find('#displayname input').val(this.columnDefinition.fieldName);
 
-     	if(aggTypes!=null){
-            for (var j = 0; j < aggTypes.length; j++) {
-                var value = aggTypes[j];
-                    $("<option />").text(AggTypes[value])
-                        .val(value)
-                        .appendTo($(this.el).find('#aggregation select'));
-           	}
- 		} 
+      $(this.el).find('#format input').val(this.columnDefinition.dataFormat);   	
 
-		$(this.el).find('#aggregation select').val(this.mqlSelection.aggregation); //this should be coming from the mql
+        //der datatype bei calculated columns muß anders ermittelt werden...
+        //if(dataType=='NUMERIC'||dataType=='DATE'){
+     	//  $(this.el).find('#format input').removeAttr('disabled');
+     	//}
 
-		$(this.el).find('#hide_repeating').attr('checked', this.columnDefinition.hideRepeating);
- 		$(this.el).find('#hide_on_report').attr('checked', this.columnDefinition.hideOnReport);
- 
-        for (var value in AggTypes) {
-              $("<option />").text(AggTypes[value]).val(value)
-                .appendTo($(this.el).find('#summary select'));    			
-		}
-            	
-     	$(this.el).find('#summary select').val(this.columnDefinition.aggregationFunction);
+
+      $(this.el).find('#aggregation select').attr('disabled', true);
+
+      $(this.el).find('#hide_repeating').attr('checked', this.columnDefinition.hideRepeating);
+      $(this.el).find('#hide_on_report').attr('checked', this.columnDefinition.hideOnReport);
+
+      for (var value in AggTypes) {
+          $("<option />").text(AggTypes[value]).val(value)
+          .appendTo($(this.el).find('#summary select'));    			
+      }
+
+      $(this.el).find('#summary select').val(this.columnDefinition.aggregationFunction);
 
      	// Show dialog
       Application.ui.unblock();
-     		
-    },
- 
-    save: function() {
 
-    	this.columnDefinition.fieldName = $(this.el).find('#displayname input').val();
-    	this.columnDefinition.dataFormat = $(this.el).find('#format input').val();   
+  },
 
-		  if(!$(this.el).find('#formula').hasClass('hide')){
-			 this.columnDefinition.fieldName.formula = $(this.el).find('#formula .formula').val();   		
-		  };
+  save: function() {
 
-      this.mqlSelection.aggregation = $(this.el).find('#aggregation select').val();
-    	this.columnDefinition.aggregationFunction = $(this.el).find('#summary select').val();  
+   this.columnDefinition.fieldName = $(this.el).find('#displayname input').val();
+   this.columnDefinition.dataFormat = $(this.el).find('#format input').val();   
+   this.columnDefinition.fieldName.formula = $(this.el).find('#formula .formula').val();   		
 
-    	this.columnDefinition.hideRepeating = $(this.el).find('#hide_repeating').is(':checked');  
-    	this.columnDefinition.hideOnReport = $(this.el).find('#hide_on_report').is(':checked');  
-    	
-    	$(this.el).find('#hide_repeating').attr('checked', this.columnDefinition.hideRepeating);
- 		  $(this.el).find('#hide_on_report').attr('checked', this.columnDefinition.hideOnReport);
- 
-    	//if(this.json.uid == null) this.json.uid = this.workspace.uniqueId('uid-');
-    	   	
+   this.columnDefinition.aggregationFunction = $(this.el).find('#summary select').val();  
+
+   this.columnDefinition.hideRepeating = $(this.el).find('#hide_repeating').is(':checked');  
+   this.columnDefinition.hideOnReport = $(this.el).find('#hide_on_report').is(':checked');  
+
+   $(this.el).find('#hide_repeating').attr('checked', this.columnDefinition.hideRepeating);
+   $(this.el).find('#hide_on_report').attr('checked', this.columnDefinition.hideOnReport);
+
+   //wenn alles ok ist, dann speichere die neue 
+    if(this.index==-1){
+        this.add_calculated_column();         
+    }
+   
         // Notify user that updates are in progress
         this.loading = $("<div>Saving...</div>");
         $(this.el).find('.dialog_body').children().hide();
@@ -113,26 +102,26 @@ var CalculatedColumnConfigModal = ColumnConfigModal.extend({
 
     add_calculated_column: function(){
 
-      //calculated column auch im modell hinzufügen
-    	
-    	var $selections = $(this.workspace.el).find('.columns ul');
-	 	
-		  var $logicalColumn = $('.category_tree')
-            .find('a[title="calc_column"]')
-            .parent();
+      var $selections = $(this.workspace.el).find('.measures ul');
 
-        var $clone = $logicalColumn.clone()
-            .addClass('d_measure')
-            .addClass('calculated')
-            .attr("id",this.json.uid)
-            .removeClass('hide');
-          
-            var href = '#CATEGORY/' + this.json.category + '/COLUMN/' + this.json.name;
-            
-            $clone.find('a[title="calc_column"]').attr("title",this.json.name).html(this.json.name)
-            .attr("href",href);
- 
-            $clone.appendTo($selections);		 	
-   }
-   
+      var $logicalColumn = $('.category_tree')
+      .find('a[title="calc_column"]')
+      .parent();
+
+      var $clone = $logicalColumn.clone()
+      .addClass('d_measure')
+      .addClass('calculated')
+      .attr("id",this.workspace.uniqueId('uid-'))
+      .removeClass('hide');
+
+      var href = '#CATEGORY/CALCULATED/COLUMN/' + this.columnDefinition.fieldName;
+
+      $clone.find('a[title="calc_column"]').attr("title",this.columnDefinition.fieldName).html(this.columnDefinition.fieldName)
+      .attr("href",href);
+
+      $clone.appendTo($selections);		
+
+      this.workspace.reportSpec.addColumn(this.columnDefinition); 	
+  }
+
 });

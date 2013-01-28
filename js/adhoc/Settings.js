@@ -3,7 +3,7 @@
  */
 var Settings = {
     VERSION: "AdhocReporting 0.0 SNAPSHOT",
-    BASE_URL: "saiku-reporting-webapp/rest",
+    BASE_URL: "/saiku-reporting-webapp/rest",
     REST_MOUNT_POINT: "/saiku-adhoc/rest",
     RESOURCE_LOCATION: "/../resources/",
     MODELS_PREFETCH: true,

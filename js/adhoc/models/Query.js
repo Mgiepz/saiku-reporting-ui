@@ -188,7 +188,7 @@ var Query = Backbone.Model.extend({
 		var categoryId = fieldInfo[1];
 		var columnId = fieldInfo[3];
 
-		var mc = this.selectedModel.getColumnById(categoryId,columnId);
+		var mc = this.selectedModel.getColumnById(categoryId, columnId);
 
 		var selection = {
 			table: mc.category,
@@ -196,77 +196,92 @@ var Query = Backbone.Model.extend({
 			aggregation: mc.defaultAggType
 		};
 
-			switch(target) {
-			case "MEASURES":
-				var agg = "SUM";
-				if(Settings.MODE === 'crosstab') agg = "GROUPSUM";
-				var field = new saiku.report.FieldDefinition({
-					fieldId: mc.id,
-					fieldName: mc.name,
-					fieldDescription: mc.description,
-					aggregationFunction: agg
-				});
+		switch(target) {
+		case "MEASURES":
+			var agg = "SUM";
+			if(Settings.MODE === 'crosstab') agg = "GROUPSUM";
+			var field = new saiku.report.FieldDefinition({
+				fieldId: mc.id,
+				fieldName: mc.name,
+				fieldDescription: mc.description,
+				aggregationFunction: agg
+			});
 
-				if(indexFrom) {
-					field = this.workspace.reportSpec.removeColumn(indexFrom);
-				}
-				this.workspace.reportSpec.addColumn(field, index);
-				this.workspace.metadataQuery.addSelection(selection);
-				break;
+			if(indexFrom) {
+				field = this.workspace.reportSpec.removeColumn(indexFrom);
+			}
+			this.workspace.reportSpec.addColumn(field, index);
+			this.workspace.metadataQuery.addSelection(selection);
+			break;
 
-			case "ROW_GROUPS":
-				var group = new saiku.report.GroupDefinition({
-					fieldId: mc.id,
-					groupName: mc.id,
-					type: GroupType.CT_ROW,
-					displayName: mc.name,
-					printSummary: true
-				});
+		case "REL_GROUPS":
+			var group = new saiku.report.GroupDefinition({
+				fieldId: mc.id,
+				groupName: mc.id,
+				type: GroupType.RELATIONAL,
+				displayName: mc.name,
+				printSummary: true
+			});
+			if(indexFrom) {
+				group = this.workspace.reportSpec.removeGroup(indexFrom);
+			}
+			this.workspace.reportSpec.addGroup(group, index);
+			this.workspace.metadataQuery.addSelection(selection);
+			break;
 
-				if(indexFrom) {
-					group = this.workspace.reportSpec.removeGroup(indexFrom);
-				}
-				this.workspace.reportSpec.addGroup(group, index);
-				this.workspace.metadataQuery.addSelection(selection);
-				break;
+		case "ROW_GROUPS":
+			var group = new saiku.report.GroupDefinition({
+				fieldId: mc.id,
+				groupName: mc.id,
+				type: GroupType.CT_ROW,
+				displayName: mc.name,
+				printSummary: true
+			});
 
-			case "COL_GROUPS":
-				var group = new saiku.report.GroupDefinition({
-					fieldId: mc.id,
-					groupName: mc.id,
-					type: GroupType.CT_COLUMN,
-					displayName: mc.name,
-					printSummary: true
-				});
+			if(indexFrom) {
+				group = this.workspace.reportSpec.removeGroup(indexFrom);
+			}
+			this.workspace.reportSpec.addGroup(group, index);
+			this.workspace.metadataQuery.addSelection(selection);
+			break;
 
-				if(indexFrom) {
-					group = this.workspace.reportSpec.removeGroup(indexFrom);
-				}
-				this.workspace.reportSpec.addGroup(group, index);
-				this.workspace.metadataQuery.addSelection(selection);
-				break;
+		case "COL_GROUPS":
+			var group = new saiku.report.GroupDefinition({
+				fieldId: mc.id,
+				groupName: mc.id,
+				type: GroupType.CT_COLUMN,
+				displayName: mc.name,
+				printSummary: true
+			});
 
-			case "FILTERS":
-				console.log("adding Filter");
+			if(indexFrom) {
+				group = this.workspace.reportSpec.removeGroup(indexFrom);
+			}
+			this.workspace.reportSpec.addGroup(group, index);
+			this.workspace.metadataQuery.addSelection(selection);
+			break;
 
-				this.workspace.metadataQuery.addConstraint({},index);
+		case "FILTERS":
+			console.log("adding Filter");
 
-				var filterModel = {
-					index: index,
-		        	operatorType: OperatorType.AND, 
-		        	columnMeta: mc,
-		        	values: null,
-		        	conditionType: ConditionType.EQUAL,
-		        	aggType: AggregationFunction.NONE,
-		        	parameter: null
-				};
+			this.workspace.metadataQuery.addConstraint({}, index);
 
-		        (new SimpleFilterDialog({
-		                    filterModel: filterModel,
-		                    workspace: this.workspace
-		                })).open();
+			var filterModel = {
+				index: index,
+				operatorType: OperatorType.AND,
+				columnMeta: mc,
+				values: null,
+				conditionType: ConditionType.EQUAL,
+				aggType: AggregationFunction.NONE,
+				parameter: null
+			};
 
-		        return false;
+			(new SimpleFilterDialog({
+				filterModel: filterModel,
+				workspace: this.workspace
+			})).open();
+
+			return false;
 
 		}
 

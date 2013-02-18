@@ -43,7 +43,7 @@ var ReportResult = Backbone.Model.extend({
 	url: function() {
 		var template = this.query.template!=null ? this.query.template : "default";
 		var page = this.query.page!=null ? this.query.page : "1";
-		return encodeURI(Settings.REST_URL + "/generator" + "/report/" + page);
+		return encodeURI(Settings.REST_URL + "/generator" + "/report/" + page) + "?nocache="+new Date();
 	},
 	fetch: function (options) {
          options.cache = false;

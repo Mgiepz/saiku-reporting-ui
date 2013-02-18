@@ -256,7 +256,7 @@ var ElementFormatPanel = Backbone.View.extend({
 	save: function() {
 
 		//TODO: This is a dirty hack
-		this.reportSpec.setElementFormatPropertyById(this.element,'width',null);			
+		//this.reportSpec.setElementFormatPropertyById(this.element,'width',null);			???
 		//this.finished();
 		this.query.run();
 		

@@ -179,7 +179,7 @@ var SelectionsModal = Modal.extend({
             
             // Filter out used values
             this.available_values = _.select(this.available_values, function(obj) {
-                return used_values.indexOf(obj[0]) === -1;
+                return used_values.toString().indexOf(obj[0]) === -1; //see ticket #169                
             });
            
             $(this.el).find('.available_selections select').removeAttr('disabled');

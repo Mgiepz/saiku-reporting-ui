@@ -1,6 +1,6 @@
 /*
  * DragResize.js
- * 
+ *
  * Copyright (c) 2012, Marius Giepz. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or
@@ -27,7 +27,7 @@ var DragResize = Backbone.View.extend({
 
 		this.dragging = false;
 
-		_.bindAll(this, "render","summonDragResize","banishDragResize","submit","finished");
+		_.bindAll(this, "render", "summonDragResize", "banishDragResize");
 
 	},
 	render: function() {
@@ -40,17 +40,16 @@ var DragResize = Backbone.View.extend({
 		$('#resizearea').append('<div id="draghandle" class="resize resize_horizontal"/>');
 		$('#draghandle').css('display', 'none')
 
-		$('#resizearea').mouseover( function() {
-			if(!this.dragging == true ) $('#draghandle').css('display', 'block');
+		$('#resizearea').mouseover(function() {
+			if(!this.dragging == true) $('#draghandle').css('display', 'block');
 		});
-		$('#resizearea').mouseout( function() {
-			if(!this.dragging == true ) $('#draghandle').css('display', 'none'); //.css('margin-top', '-2px');
+		$('#resizearea').mouseout(function() {
+			if(!this.dragging == true) $('#draghandle').css('display', 'none'); //.css('margin-top', '-2px');
 		});
 	},
 	summonDragResize: function(event) {
 
-		if( !this.dragging == true 
-			&& !$(event.currentTarget).parent().children('.saiku').last().is($(event.currentTarget))) {
+		if(!this.dragging == true && !$(event.currentTarget).parent().children('.saiku').last().is($(event.currentTarget))) {
 
 			var self = this;
 			var colHeader = $(event.currentTarget);
@@ -62,7 +61,7 @@ var DragResize = Backbone.View.extend({
 			var padding = parseInt(colHeader.css('padding-right').replace("px", ""));
 
 			$('#resizearea').css('top', colHeaderPos.top);
-			$('#resizearea').css('left', 12 + colHeaderPos.left + colHeaderWidth - areaWidth + (2 * padding)) ;
+			$('#resizearea').css('left', 12 + colHeaderPos.left + colHeaderWidth - areaWidth + (2 * padding));
 			$('#resizearea').css('height', colHeaderHeight);
 
 			$('#resizearea').show();
@@ -75,7 +74,6 @@ var DragResize = Backbone.View.extend({
 			var borderTop = borderPosition.top;
 
 			//calculate the containment
-
 			var td_elements = $(event.currentTarget).add($(event.currentTarget).next("td"));
 
 			//This will hold the extreme points of the containment
@@ -87,45 +85,48 @@ var DragResize = Backbone.View.extend({
 			};
 
 			//Find the points of the containment
-			td_elements.each( function() {
+			td_elements.each(function() {
 				console.log($(this).attr('class'));
-			
+
 				var t = $(this);
 				var p = t.position();
 				var width = t.width();
 				var height = t.height();
 
 				points.left = Math.min(p.left, points.left);
-				points.top  = Math.min(p.top , points.top );
-				points.right = Math.max( points.right, p.left + width);
-				points.bottom = Math.max( points.bottom, p.top + height);
+				points.top = Math.min(p.top, points.top);
+				points.right = Math.max(points.right, p.left + width);
+				points.bottom = Math.max(points.bottom, p.top + height);
 			});
-		
-			$helper = $('#resizer').addClass('resizer').css({height: borderHeight});//,{top: borderTop});
 
-//it sometimes mixes up the one that is being dragged with its neighbor
+			$helper = $('#resizer').addClass('resizer').css({
+				height: borderHeight
+			}); //,{top: borderTop});
 
+			//it sometimes mixes up the one that is being dragged with its neighbor
 
-			$('#draghandle').css('height', colHeaderHeight).draggable({	
-				helper : function() {				
-					return $helper.clone().removeAttr( "id" ).removeClass("hide");
-				} ,
+			$('#draghandle').css('height', colHeaderHeight).draggable({
+				helper: function() {
+					return $helper.clone().removeAttr("id").removeClass("hide");
+				},
 				//delay: 1500,
 				grid: [5, 20],
-				containment:  [points.left + 30, points.top, points.right - 30, points.bottom],
+				containment: [points.left + 30, points.top, points.right - 30, points.bottom],
 				axis: 'x',
-				start: function(event,ui){
-					$(ui.helper).css({top: borderTop - points.top});
+				start: function(event, ui) {
+					$(ui.helper).css({
+						top: borderTop - points.top
+					});
 					console.log("start dragging");
 					self.dragging = true;
 				},
-				dragging: function(event,ui) {
+				dragging: function(event, ui) {
 					event.stopPropagation();
 				},
-				stop : function(event,ui) {
+				stop: function(event, ui) {
 					console.log("start dragging");
 					self.dragging = false;
-					
+
 					var $ele = $('.resizable_row');
 					var containmentWidth = $ele.width();
 
@@ -138,18 +139,16 @@ var DragResize = Backbone.View.extend({
 					var elementClass;
 
 					//find the relevant class
-					for (var i = 0; i < clazz.length; i++) {
+					for(var i = 0; i < clazz.length; i++) {
 						var c = clazz[i];
 						if(c.substring(0, 3) == "rpt") {
-							elementClass=c;
+							elementClass = c;
 							break;
 						}
 					}
-						self.workspace.query.action.get("/FORMAT/ELEMENT/" + elementClass , {
-							success: function(model, response) {
-								self.submit(model, response, prcChange, elementClass);
-							}
-						});
+					//here we need to do sth.
+					//calculate the new width using prcChange and put it in the  model
+					self.workspace.query.run();
 				}
 			});
 
@@ -158,40 +157,23 @@ var DragResize = Backbone.View.extend({
 	},
 	banishDragResize: function(event) {
 
-	if(!this.dragging==true){
+		if(!this.dragging == true) {
 
-		var el = event.relatedTarget;
-		var position = $(el).offset()
-		var height = $(el).height()
-		var width = $(el).width()
-		if (event.pageY > position.top || event.pageY < (position.top + height)
-		|| event.pageX > position.left
-		|| event.pageX < (position.left + width)) {
-			return true;
+			var el = event.relatedTarget;
+			var _position = $(el).offset()
+			var height = $(el).height()
+			var width = $(el).width()
+			if(
+				event.pageY > _position.top ||
+				event.pageY < (_position.top + height) || 
+				event.pageX > _position.left || 
+				event.pageX < (_position.left + width)
+			) {
+				return true;
+			}
+
+			$('#resizearea').hide();
+
 		}
-
-		$('#resizearea').hide();
-		
 	}
-		
-	},
-	submit: function(model, response, prcChange, elementClass) {
-		// Notify server
-		var out = $.extend(true, {}, emptyFormat);
-		out.value=response.value;
-
-		var lastRealWidth = response.format.width;
-		var newRealWidth = lastRealWidth + prcChange;
-		out.format.width = newRealWidth;
-
-		this.workspace.query.action.post("/FORMAT/ELEMENT/" + elementClass, {
-			success: this.finished,
-			data: out
-		});
-
-		return false;
-	},
-	finished: function(response) {
-		this.workspace.query.run();
-	},
 });

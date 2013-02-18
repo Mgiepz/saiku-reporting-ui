@@ -42,6 +42,6 @@ var Result = Backbone.Model.extend({
     },
     
     url: function() {
-    	return encodeURI(this.query.url() + "/result");
+    	return encodeURI(this.query.url() + "/result") + "?nocache="+new Date();
     }
 });

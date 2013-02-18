@@ -190,6 +190,14 @@ var Query = Backbone.Model.extend({
 
 		var mc = this.selectedModel.getColumnById(categoryId, columnId);
 
+		if(categoryId == 'CALCULATED'){
+			if(indexFrom) {
+				field = this.workspace.reportSpec.removeColumn(indexFrom);
+				this.workspace.reportSpec.addColumn(field, index);
+			}
+			this.run();
+		}
+
 		var selection = {
 			table: mc.category,
 			column: mc.id,
@@ -198,8 +206,8 @@ var Query = Backbone.Model.extend({
 
 		switch(target) {
 		case "MEASURES":
-			var agg = "SUM";
-			if(Settings.MODE === 'crosstab') agg = "GROUPSUM";
+			var agg = "NONE";
+			if(Settings.MODE === 'crosstab') agg = "GROUPSUM"; //TODO: what should be the default here?
 			var field = new saiku.report.FieldDefinition({
 				fieldId: mc.id,
 				fieldName: mc.name,
@@ -211,7 +219,6 @@ var Query = Backbone.Model.extend({
 				field = this.workspace.reportSpec.removeColumn(indexFrom);
 			}
 			this.workspace.reportSpec.addColumn(field, index);
-			this.workspace.metadataQuery.addSelection(selection);
 			break;
 
 		case "REL_GROUPS":
@@ -226,7 +233,6 @@ var Query = Backbone.Model.extend({
 				group = this.workspace.reportSpec.removeGroup(indexFrom);
 			}
 			this.workspace.reportSpec.addGroup(group, index);
-			this.workspace.metadataQuery.addSelection(selection);
 			break;
 
 		case "ROW_GROUPS":
@@ -242,7 +248,6 @@ var Query = Backbone.Model.extend({
 				group = this.workspace.reportSpec.removeGroup(indexFrom);
 			}
 			this.workspace.reportSpec.addGroup(group, index);
-			this.workspace.metadataQuery.addSelection(selection);
 			break;
 
 		case "COL_GROUPS":
@@ -258,7 +263,6 @@ var Query = Backbone.Model.extend({
 				group = this.workspace.reportSpec.removeGroup(indexFrom);
 			}
 			this.workspace.reportSpec.addGroup(group, index);
-			this.workspace.metadataQuery.addSelection(selection);
 			break;
 
 		case "FILTERS":
@@ -284,6 +288,8 @@ var Query = Backbone.Model.extend({
 			return false;
 
 		}
+
+		this.workspace.metadataQuery.addSelection(selection);
 
 		this.run();
 

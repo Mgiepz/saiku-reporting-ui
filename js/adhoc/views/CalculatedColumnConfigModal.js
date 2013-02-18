@@ -29,8 +29,8 @@
             this.columnDefinition =  new saiku.report.FieldDefinition({
                 fieldId: "calcolumn", 
                 fieldName: "Calculated Column", 
-                fieldDescription: "Iam calculated",
-                formula: '"Test"'});
+                fieldDescription: "",
+                formula: ''});
 
         }else{
             this.columnDefinition = this.workspace.reportSpec.fieldDefinitions[this.index];
@@ -75,7 +75,7 @@
 
    this.columnDefinition.fieldName = $(this.el).find('#displayname input').val();
    this.columnDefinition.dataFormat = $(this.el).find('#format input').val();   
-   this.columnDefinition.fieldName.formula = $(this.el).find('#formula .formula').val();   		
+   this.columnDefinition.formula = $(this.el).find('#formula .formula').val();   		
 
    this.columnDefinition.aggregationFunction = $(this.el).find('#summary select').val();  
 

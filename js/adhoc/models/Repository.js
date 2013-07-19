@@ -27,7 +27,7 @@ var SavedQuery = Backbone.Model.extend({
     },
     
     url: function() {   
-        return encodeURI(Settings.REST_URL + "/repository/query/" + this.get('name'));
+        return encodeURI(Settings.REST_URL + "metadata/repository/query/" + this.get('name'));
     },
     
     move_query_to_workspace: function(model, response) {
@@ -56,6 +56,6 @@ var Repository = Backbone.Collection.extend({
     },
     
     url: function() {
-        return encodeURI(Settings.REST_URL + "repository/query");
+        return encodeURI(Settings.REST_URL + "metadata/repository/query");
     }
 });

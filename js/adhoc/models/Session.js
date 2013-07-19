@@ -90,8 +90,8 @@ var Session = Backbone.Model.extend({
         });
 
         var self = this;
-        $.get(encodeURI(Settings.REST_URL) + '/discover/templates', function(templates){self.prpt_templates = templates;});
-        $.get(encodeURI(Settings.REST_URL) + '/discover/pageformats', function(formats){self.page_formats = formats;});
+        $.get(encodeURI(Settings.REST_URL) + 'metadata/discover/templates', function(templates){self.prpt_templates = templates;});
+        $.get(encodeURI(Settings.REST_URL) + 'metadata/discover/pageformats', function(formats){self.page_formats = formats;});
         
     },
     
@@ -133,7 +133,7 @@ var Session = Backbone.Model.extend({
     url: function() {
     	var locale = (navigator.language || navigator.browserLanguage || 
         navigator.systemLanguage || navigator.userLanguage).substring(0,2).toLowerCase()
-    	return encodeURI(Settings.REST_URL + "/discover/" + locale);
-    	//return encodeURI(Settings.REST_URL + "/discover");
+    	return encodeURI(Settings.REST_URL + "metadata/discover/" + locale);
+    	//return encodeURI(Settings.REST_URL + "metadata/discover");
     }
 });
